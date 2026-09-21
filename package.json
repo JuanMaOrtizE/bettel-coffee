@@ -1,0 +1,24 @@
+{
+  "name": "bettel-coffee",
+  "version": "1.0.0",
+  "description": "Proyecto fullstack de aprendizaje profesional con React, NestJS, Prisma y PostgreSQL.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:api": "npm run start:dev --workspace apps/api",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}
