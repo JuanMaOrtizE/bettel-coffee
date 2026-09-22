@@ -35,9 +35,14 @@ Crear módulos solo cuando llegue su fase.
 - `WAITER`: mesas y pedidos.
 - `BARISTA`: cola y preparación.
 - `PARTNER`: lectura financiera autorizada.
-- `CLIENT`: acceso limitado.
 
-No hay registro público de empleados.
+No existe un rol `CLIENT` en el MVP. Los clientes presenciales no necesitan
+una cuenta para realizar pedidos atendidos por un mesero.
+
+No hay registro público de usuarios.
+
+Los usuarios se desactivan en lugar de eliminarse físicamente, para conservar
+la trazabilidad de sus acciones.
 
 ## Modelo conceptual clave
 

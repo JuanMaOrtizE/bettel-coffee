@@ -7,8 +7,12 @@
 - Monolito modular.
 - WebSockets para Mesero/Barra.
 - `OWNER` es la máxima autoridad; no existe `SUPER_ADMIN` separado.
-- OWNER crea/gestiona ADMIN.
-- ADMIN crea/gestiona usuarios operativos.
+- Los roles autenticados del MVP son `OWNER`, `ADMIN`, `WAITER`, `BARISTA` y `PARTNER`.
+- No existe el rol `CLIENT` en el MVP.
+- Los clientes presenciales no necesitan una cuenta de usuario.
+- OWNER crea/gestiona cuentas ADMIN.
+- ADMIN solo crea/gestiona cuentas WAITER y BARISTA.
+- Los usuarios se desactivan; no se eliminan físicamente.
 - No hay signup público de empleados.
 - Pagos son registros internos, sin pasarela.
 - `Sale` y `Payment` son entidades separadas.
