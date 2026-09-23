@@ -9,7 +9,7 @@ type CreateAuthSessionInput = {
 };
 
 @Injectable()
-export class AuthSessionService {
+export class AuthSessionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(input: CreateAuthSessionInput) {
