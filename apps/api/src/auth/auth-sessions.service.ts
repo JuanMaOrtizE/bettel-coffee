@@ -8,6 +8,13 @@ type CreateAuthSessionInput = {
   expiresAt: Date;
 };
 
+type RotateRefreshTokenInput = {
+  id: string;
+  currentRefreshTokenHash: string;
+  newRefreshTokenHash: string;
+  now: Date;
+};
+
 @Injectable()
 export class AuthSessionsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -19,6 +26,44 @@ export class AuthSessionsService {
         id: true,
         userId: true,
         expiresAt: true,
+      },
+    });
+  }
+
+  findById(id: string) {
+    return this.prisma.authSession.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        userId: true,
+        refreshTokenHash: true,
+        expiresAt: true,
+        revokedAt: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+            role: true,
+            isActive: true,
+          },
+        },
+      },
+    });
+  }
+
+  rotateRefreshToken(input: RotateRefreshTokenInput) {
+    return this.prisma.authSession.updateMany({
+      where: {
+        id: input.id,
+        refreshTokenHash: input.currentRefreshTokenHash,
+        revokedAt: null,
+        expiresAt: {
+          gt: input.now,
+        },
+      },
+      data: {
+        refreshTokenHash: input.newRefreshTokenHash,
       },
     });
   }
