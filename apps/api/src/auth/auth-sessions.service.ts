@@ -15,6 +15,13 @@ type RotateRefreshTokenInput = {
   now: Date;
 };
 
+type RevokeAuthSessionInput = {
+  id: string;
+  userId: string;
+  refreshTokenHash: string;
+  revokedAt: Date;
+};
+
 @Injectable()
 export class AuthSessionsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -64,6 +71,20 @@ export class AuthSessionsService {
       },
       data: {
         refreshTokenHash: input.newRefreshTokenHash,
+      },
+    });
+  }
+
+  revoke(input: RevokeAuthSessionInput) {
+    return this.prisma.authSession.updateMany({
+      where: {
+        id: input.id,
+        userId: input.userId,
+        refreshTokenHash: input.refreshTokenHash,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: input.revokedAt,
       },
     });
   }

@@ -91,27 +91,10 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
+    const claims = await this.verifyRefreshToken(refreshToken);
+
     const refreshSecret =
       this.configService.getOrThrow<string>('JWT_REFRESH_SECRET');
-
-    let decodedToken: unknown;
-
-    try {
-      decodedToken = await this.jwtService.verifyAsync(refreshToken, {
-        secret: refreshSecret,
-        algorithms: ['HS256'],
-      });
-    } catch {
-      throw new UnauthorizedException('Sesión inválida o vencida');
-    }
-
-    const parsedClaims = refreshTokenClaimsSchema.safeParse(decodedToken);
-
-    if (!parsedClaims.success) {
-      throw new UnauthorizedException('Sesión inválida o vencida');
-    }
-
-    const claims = parsedClaims.data;
     const session = await this.authSessionsService.findById(claims.sid);
     const now = new Date();
 
@@ -191,6 +174,54 @@ export class AuthService {
       accessTtlSeconds,
       refreshTtlSeconds: remainingSessionSeconds,
     };
+  }
+
+  async logout(refreshToken?: string) {
+    if (!refreshToken) {
+      return;
+    }
+
+    try {
+      const claims = await this.verifyRefreshToken(refreshToken);
+      const refreshTokenHash = this.hashToken(refreshToken);
+
+      await this.authSessionsService.revoke({
+        id: claims.sid,
+        userId: claims.sub,
+        refreshTokenHash,
+        revokedAt: new Date(),
+      });
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        return;
+      }
+
+      throw error;
+    }
+  }
+
+  private async verifyRefreshToken(refreshToken: string) {
+    const refreshSecret =
+      this.configService.getOrThrow<string>('JWT_REFRESH_SECRET');
+
+    let decodedToken: unknown;
+
+    try {
+      decodedToken = await this.jwtService.verifyAsync(refreshToken, {
+        secret: refreshSecret,
+        algorithms: ['HS256'],
+      });
+    } catch {
+      throw new UnauthorizedException('Sesión inválida o vencida');
+    }
+
+    const parsedClaims = refreshTokenClaimsSchema.safeParse(decodedToken);
+
+    if (!parsedClaims.success) {
+      throw new UnauthorizedException('Sesión inválida o vencida');
+    }
+
+    return parsedClaims.data;
   }
 
   private hashToken(token: string) {
