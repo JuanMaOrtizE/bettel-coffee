@@ -1,17 +1,22 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from './auth.constants.js';
 import { AuthService } from './auth.service.js';
+import type { AuthenticatedUser } from './authenticated-user.type.js';
+import { CurrentUser } from './decorators/current-user.decorator.js';
+import { AccessTokenGuard } from './guards/access-token.guard.js';
 import { loginSchema, type LoginInput } from './schemas/login.schema.js';
 
 @Controller('auth')
@@ -96,6 +101,12 @@ export class AuthController {
     );
 
     this.clearAuthCookies(response);
+  }
+
+  @Get('me')
+  @UseGuards(AccessTokenGuard)
+  me(@CurrentUser() user: AuthenticatedUser) {
+    return { user };
   }
 
   private setAuthCookies(

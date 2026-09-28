@@ -6,11 +6,13 @@ import * as argon2 from 'argon2';
 import { UsersService } from '../users/users.service.js';
 import { AuthSessionsService } from './auth-sessions.service.js';
 import {
+  accessTokenClaimsSchema,
   refreshTokenClaimsSchema,
   type AccessTokenPayload,
   type RefreshTokenPayload,
 } from './auth-token.schemas.js';
 import type { LoginInput } from './schemas/login.schema.js';
+import type { AuthenticatedUser } from './authenticated-user.type.js';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +36,46 @@ export class AuthService {
     );
     if (!passwordIsValid) {
       throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      username: user.username,
+      role: user.role,
+    };
+  }
+
+  async validateAccessToken(
+    accessToken: string,
+  ): Promise<AuthenticatedUser> {
+    const accessSecret =
+      this.configService.getOrThrow<string>('JWT_ACCESS_SECRET');
+
+    let decodedToken: unknown;
+
+    try {
+      decodedToken = await this.jwtService.verifyAsync(accessToken, {
+        secret: accessSecret,
+        algorithms: ['HS256'],
+      });
+    } catch {
+      throw new UnauthorizedException('No autenticado');
+    }
+
+    const parsedClaims =
+      accessTokenClaimsSchema.safeParse(decodedToken);
+
+    if (!parsedClaims.success) {
+      throw new UnauthorizedException('No autenticado');
+    }
+
+    const user = await this.userService.findById(
+      parsedClaims.data.sub,
+    );
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('No autenticado');
     }
 
     return {
