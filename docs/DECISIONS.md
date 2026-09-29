@@ -18,6 +18,7 @@
 - `Sale` y `Payment` son entidades separadas.
 - Una venta puede tener varios pagos.
 - Conservar precios históricos.
+- Las contraseñas nuevas deben tener entre 10 y 128 caracteres; se permiten espacios y no se exigen reglas de composición por tipo de carácter.
 
 ## Pendiente de confirmar cuando corresponda
 - Momento exacto de descuento de inventario. Propuesta: al enviar a barra.

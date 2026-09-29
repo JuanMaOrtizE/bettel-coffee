@@ -67,3 +67,24 @@ Principios:
 ## Fuente funcional
 La fuente principal es `docs/source/HISTORIA_DE_USUARIO.docx`.
 Si falta una regla, pregunta o propón una opción; no la asumas silenciosamente.
+
+## Protocolo obligatorio de enseñanza para NestJS
+La prioridad principal del proyecto es que el desarrollador construya un modelo mental de NestJS. Que el código funcione no es suficiente si el desarrollador no entiende el recorrido y las responsabilidades.
+
+Antes de presentar o editar código que introduzca una abstracción nueva de NestJS, Codex debe explicar, en este orden:
+1. el problema concreto que se intenta resolver;
+2. dónde se encuentra la petición dentro del ciclo de NestJS;
+3. qué responsabilidad tiene la pieza nueva y qué responsabilidades no tiene;
+4. su equivalente aproximado en Express;
+5. cómo se conecta mediante módulos e inyección de dependencias;
+6. el recorrido en tiempo de ejecución, desde que llega la petición hasta la respuesta;
+7. solo después, el código mínimo de una única abstracción nueva.
+
+Reglas adicionales:
+- No introducir dos conceptos nuevos de NestJS en el mismo paso si uno depende de entender el anterior.
+- No entregar bloques grandes de código de NestJS antes de explicar cada decorador, interfaz y dependencia nueva que sea relevante.
+- `hazlo tú` autoriza la edición, pero no autoriza omitir la explicación previa ni el resumen posterior.
+- Después de cada concepto nuevo, hacer una pausa de comprobación: pedir al desarrollador que describa brevemente el recorrido o responder sus dudas antes de añadir la siguiente abstracción.
+- Al revisar código, explicar por separado qué valida TypeScript, qué valida Nest al arrancar y qué sucede solamente durante una petición HTTP.
+- Mantener `docs/LEARNING.md` como mapa de aprendizaje. Actualizarlo cuando se complete un bloque conceptual, no por cada cambio mecánico.
+- Si el desarrollador indica que no entiende, detener la implementación. Volver al último concepto base necesario y reconstruirlo con un ejemplo pequeño antes de continuar.

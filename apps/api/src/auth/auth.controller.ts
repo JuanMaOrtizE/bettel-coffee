@@ -8,7 +8,6 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
@@ -18,6 +17,7 @@ import type { AuthenticatedUser } from './authenticated-user.type.js';
 import { CurrentUser } from './decorators/current-user.decorator.js';
 import { AccessTokenGuard } from './guards/access-token.guard.js';
 import { loginSchema, type LoginInput } from './schemas/login.schema.js';
+import { Public } from './decorators/public.decorator.js';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +26,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -54,6 +55,7 @@ export class AuthController {
     return { user };
   }
 
+  @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
@@ -88,6 +90,7 @@ export class AuthController {
     }
   }
 
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
@@ -104,7 +107,6 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AccessTokenGuard)
   me(@CurrentUser() user: AuthenticatedUser) {
     return { user };
   }
@@ -154,5 +156,4 @@ export class AuthController {
       path: '/auth',
     });
   }
-
 }

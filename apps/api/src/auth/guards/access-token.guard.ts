@@ -8,13 +8,26 @@ import { ACCESS_TOKEN_COOKIE } from '../auth.constants.js';
 import { AuthService } from '../auth.service.js';
 import type { AuthenticatedRequest } from '../authenticated-request.type.js';
 
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
+
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request =
-      context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
     const accessToken: unknown = request.cookies?.[ACCESS_TOKEN_COOKIE];
 

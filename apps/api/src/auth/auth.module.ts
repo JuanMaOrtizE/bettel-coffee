@@ -7,6 +7,8 @@ import { AuthSessionsService } from './auth-sessions.service.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { AccessTokenGuard } from './guards/access-token.guard.js';
+import { RolesGuard } from './guards/roles.guard.js';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -23,7 +25,20 @@ import { AccessTokenGuard } from './guards/access-token.guard.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthSessionsService, AccessTokenGuard],
-  exports: [AccessTokenGuard],
+  providers: [
+    AuthService,
+    AuthSessionsService,
+    AccessTokenGuard,
+    RolesGuard,
+    {
+      provide: APP_GUARD,
+      useExisting: AccessTokenGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useExisting: RolesGuard,
+    },
+  ],
+  exports: [AccessTokenGuard, RolesGuard],
 })
 export class AuthModule {}
