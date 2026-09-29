@@ -15,7 +15,6 @@ import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from './auth.constants.js';
 import { AuthService } from './auth.service.js';
 import type { AuthenticatedUser } from './authenticated-user.type.js';
 import { CurrentUser } from './decorators/current-user.decorator.js';
-import { AccessTokenGuard } from './guards/access-token.guard.js';
 import { loginSchema, type LoginInput } from './schemas/login.schema.js';
 import { Public } from './decorators/public.decorator.js';
 

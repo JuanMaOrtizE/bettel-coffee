@@ -20,6 +20,40 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  findAllVisibleTo(actorRole: Role) {
+    if (actorRole !== Role.OWNER && actorRole !== Role.ADMIN) {
+      throw new ForbiddenException(
+        'No tienes permisos para consultar usuarios',
+      );
+    }
+
+    const where =
+      actorRole === Role.ADMIN
+        ? {
+            role: {
+              in: [Role.WAITER, Role.BARISTA],
+            },
+          }
+        : undefined;
+
+    return this.prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        role: true,
+        isActive: true,
+        deactivatedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        fullName: 'asc',
+      },
+    });
+  }
+
   async create(input: CreateUserInput, actorRole: Role) {
     this.assertCanCreateRole(actorRole, input.role);
 

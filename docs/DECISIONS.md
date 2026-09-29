@@ -12,6 +12,7 @@
 - Los clientes presenciales no necesitan una cuenta de usuario.
 - OWNER crea/gestiona cuentas ADMIN.
 - ADMIN solo crea/gestiona cuentas WAITER y BARISTA.
+- Al consultar usuarios, OWNER puede ver todas las cuentas; ADMIN solo puede ver cuentas WAITER y BARISTA.
 - Los usuarios se desactivan; no se eliminan físicamente.
 - No hay signup público de empleados.
 - Pagos son registros internos, sin pasarela.
