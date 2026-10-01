@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { Prisma, Role } from '../generated/prisma/client.js';
@@ -54,6 +55,66 @@ export class UsersService {
     });
   }
 
+  async deactivate(targetUserId: string, actorId: string, actorRole: Role) {
+    if (targetUserId === actorId) {
+      throw new ForbiddenException('No puedes desactivar tu propia cuenta');
+    }
+
+    return this.prisma.$transaction(async (transaction) => {
+      const targetUser = await transaction.user.findUnique({
+        where: { id: targetUserId },
+        select: {
+          id: true,
+          fullName: true,
+          username: true,
+          role: true,
+          isActive: true,
+          deactivatedAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!targetUser) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      this.assertCanDeactivateRole(actorRole, targetUser.role);
+
+      const now = new Date();
+
+      const deactivatedUser = targetUser.isActive
+        ? await transaction.user.update({
+            where: {
+              id: targetUserId,
+            },
+            data: { isActive: false, deactivatedAt: now },
+            select: {
+              id: true,
+              fullName: true,
+              username: true,
+              role: true,
+              isActive: true,
+              deactivatedAt: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          })
+        : targetUser;
+
+      await transaction.authSession.updateMany({
+        where: {
+          userId: targetUserId,
+          revokedAt: null,
+        },
+        data: {
+          revokedAt: now,
+        },
+      });
+      return deactivatedUser;
+    });
+  }
+
   async create(input: CreateUserInput, actorRole: Role) {
     this.assertCanCreateRole(actorRole, input.role);
 
@@ -87,6 +148,22 @@ export class UsersService {
       }
 
       throw error;
+    }
+  }
+
+  private assertCanDeactivateRole(actorRole: Role, targetRole: Role) {
+    const rolesManagedByOwner: Role[] = [Role.ADMIN, Role.WAITER, Role.BARISTA];
+
+    const rolesManagedByAdmin: Role[] = [Role.WAITER, Role.BARISTA];
+
+    const ownerCanDeactivate =
+      actorRole === Role.OWNER && rolesManagedByOwner.includes(targetRole);
+
+    const adminCanDeactivate =
+      actorRole === Role.ADMIN && rolesManagedByAdmin.includes(targetRole);
+
+    if (!ownerCanDeactivate && !adminCanDeactivate) {
+      throw new ForbiddenException('No puedes desactivar este usuario');
     }
   }
 

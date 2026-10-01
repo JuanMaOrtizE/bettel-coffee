@@ -13,6 +13,9 @@
 - OWNER crea/gestiona cuentas ADMIN.
 - ADMIN solo crea/gestiona cuentas WAITER y BARISTA.
 - Al consultar usuarios, OWNER puede ver todas las cuentas; ADMIN solo puede ver cuentas WAITER y BARISTA.
+- Nadie puede desactivar su propia cuenta y las cuentas OWNER no se desactivan desde la gestión de usuarios del MVP.
+- OWNER puede desactivar ADMIN, WAITER y BARISTA; ADMIN solo puede desactivar WAITER y BARISTA. La gestión de PARTNER queda pendiente.
+- Desactivar un usuario es idempotente, conserva su registro y revoca todas sus sesiones activas en la misma transacción.
 - Los usuarios se desactivan; no se eliminan físicamente.
 - No hay signup público de empleados.
 - Pagos son registros internos, sin pasarela.

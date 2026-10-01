@@ -1,4 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { Role } from '../generated/prisma/client.js';
 import type { AuthenticatedUser } from '../auth/authenticated-user.type.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
@@ -13,6 +21,15 @@ import { UsersService } from './users.service.js';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get()
+  @Roles(Role.OWNER, Role.ADMIN)
+  findAll(
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
+  ) {
+    return this.usersService.findAllVisibleTo(currentUser.role);
+  }
+
   @Post()
   @Roles(Role.OWNER, Role.ADMIN)
   create(
@@ -23,5 +40,21 @@ export class UsersController {
     currentUser: AuthenticatedUser,
   ) {
     return this.usersService.create(input, currentUser.role);
+  }
+
+  @Patch(':id/deactivate')
+  @Roles(Role.OWNER, Role.ADMIN)
+  deactivate(
+    @Param('id', new ParseUUIDPipe({ version: '4' }))
+    targetUserId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
+  ) {
+    return this.usersService.deactivate(
+      targetUserId,
+      currentUser.id,
+      currentUser.role,
+    );
   }
 }

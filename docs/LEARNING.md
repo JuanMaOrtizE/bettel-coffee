@@ -78,9 +78,10 @@ AppModule
 - [x] `RolesGuard`: diferencia entre autenticación (`401`) y autorización por rol (`403`).
 - [x] Estrategia de Guards globales: proteger por defecto y declarar explícitamente las rutas públicas.
 - [x] Flujo completo de autorización: Guard para acceder a la ruta y service para validar la operación concreta.
+- [x] Visibilidad por rol: filtrar en PostgreSQL qué usuarios puede consultar cada actor.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
 ## Próximo punto de reanudación
 
-Los Guards globales y `@Public()` ya están funcionando. `POST /users` integra autenticación, autorización por ruta, validación Zod, autorización de negocio, Argon2 y persistencia segura. El siguiente bloque será la consulta de usuarios con visibilidad limitada según el rol del solicitante.
+Los Guards globales y `@Public()` ya están funcionando. `POST /users` y `GET /users` integran autenticación, autorización de ruta, reglas de negocio y visibilidad filtrada desde PostgreSQL. El siguiente bloque será la desactivación segura de usuarios y la revocación de sus sesiones.
