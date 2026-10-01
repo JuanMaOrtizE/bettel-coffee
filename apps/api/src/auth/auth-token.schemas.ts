@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const accessTokenClaimsSchema = z.object({
   sub: z.uuid(),
+  sid: z.uuid(),
   tokenType: z.literal('access'),
   iat: z.number().int(),
   exp: z.number().int(),

@@ -46,9 +46,7 @@ export class AuthService {
     };
   }
 
-  async validateAccessToken(
-    accessToken: string,
-  ): Promise<AuthenticatedUser> {
+  async validateAccessToken(accessToken: string): Promise<AuthenticatedUser> {
     const accessSecret =
       this.configService.getOrThrow<string>('JWT_ACCESS_SECRET');
 
@@ -63,26 +61,33 @@ export class AuthService {
       throw new UnauthorizedException('No autenticado');
     }
 
-    const parsedClaims =
-      accessTokenClaimsSchema.safeParse(decodedToken);
+    const parsedClaims = accessTokenClaimsSchema.safeParse(decodedToken);
 
     if (!parsedClaims.success) {
       throw new UnauthorizedException('No autenticado');
     }
 
-    const user = await this.userService.findById(
-      parsedClaims.data.sub,
+    const session = await this.authSessionsService.findById(
+      parsedClaims.data.sid,
     );
 
-    if (!user || !user.isActive) {
+    const now = new Date();
+
+    if (
+      !session ||
+      session.userId !== parsedClaims.data.sub ||
+      session.revokedAt ||
+      session.expiresAt <= now ||
+      !session.user.isActive
+    ) {
       throw new UnauthorizedException('No autenticado');
     }
 
     return {
-      id: user.id,
-      fullName: user.fullName,
-      username: user.username,
-      role: user.role,
+      id: session.user.id,
+      fullName: session.user.fullName,
+      username: session.user.username,
+      role: session.user.role,
     };
   }
 
@@ -96,6 +101,7 @@ export class AuthService {
 
     const accessPayload = {
       sub: user.id,
+      sid: sessionId,
       tokenType: 'access',
     } satisfies AccessTokenPayload;
 
@@ -166,9 +172,9 @@ export class AuthService {
       configuredAccessTtlSeconds,
       remainingSessionSeconds,
     );
-
     const accessPayload = {
       sub: session.user.id,
+      sid: session.id,
       tokenType: 'access',
     } satisfies AccessTokenPayload;
 

@@ -57,4 +57,16 @@ export class UsersController {
       currentUser.role,
     );
   }
+
+  @Patch(':id/activate')
+  @Roles(Role.OWNER, Role.ADMIN)
+  activate(
+    @Param('id', new ParseUUIDPipe({ version: '4' }))
+    targetUserId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
+  ) {
+    return this.usersService.activate(targetUserId, currentUser.role);
+  }
 }

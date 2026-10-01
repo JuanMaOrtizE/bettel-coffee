@@ -55,6 +55,54 @@ export class UsersService {
     });
   }
 
+  async activate(targetUserId: string, actorRole: Role) {
+    const targetUser = await this.prisma.user.findUnique({
+      where: {
+        id: targetUserId,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        role: true,
+        isActive: true,
+        deactivatedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!targetUser) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    this.assertCanManageRole(actorRole, targetUser.role);
+
+    if (targetUser.isActive) {
+      return targetUser;
+    }
+
+    return this.prisma.user.update({
+      where: {
+        id: targetUserId,
+      },
+      data: {
+        isActive: true,
+        deactivatedAt: null,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        username: true,
+        role: true,
+        isActive: true,
+        deactivatedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   async deactivate(targetUserId: string, actorId: string, actorRole: Role) {
     if (targetUserId === actorId) {
       throw new ForbiddenException('No puedes desactivar tu propia cuenta');
@@ -79,7 +127,7 @@ export class UsersService {
         throw new NotFoundException('Usuario no encontrado');
       }
 
-      this.assertCanDeactivateRole(actorRole, targetUser.role);
+      this.assertCanManageRole(actorRole, targetUser.role);
 
       const now = new Date();
 
@@ -151,19 +199,19 @@ export class UsersService {
     }
   }
 
-  private assertCanDeactivateRole(actorRole: Role, targetRole: Role) {
+  private assertCanManageRole(actorRole: Role, targetRole: Role) {
     const rolesManagedByOwner: Role[] = [Role.ADMIN, Role.WAITER, Role.BARISTA];
 
     const rolesManagedByAdmin: Role[] = [Role.WAITER, Role.BARISTA];
 
-    const ownerCanDeactivate =
+    const ownerCanManage =
       actorRole === Role.OWNER && rolesManagedByOwner.includes(targetRole);
 
-    const adminCanDeactivate =
+    const adminCanManage =
       actorRole === Role.ADMIN && rolesManagedByAdmin.includes(targetRole);
 
-    if (!ownerCanDeactivate && !adminCanDeactivate) {
-      throw new ForbiddenException('No puedes desactivar este usuario');
+    if (!ownerCanManage && !adminCanManage) {
+      throw new ForbiddenException('No puedes gestionar este usuario');
     }
   }
 

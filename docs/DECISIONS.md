@@ -16,6 +16,7 @@
 - Nadie puede desactivar su propia cuenta y las cuentas OWNER no se desactivan desde la gestión de usuarios del MVP.
 - OWNER puede desactivar ADMIN, WAITER y BARISTA; ADMIN solo puede desactivar WAITER y BARISTA. La gestión de PARTNER queda pendiente.
 - Desactivar un usuario es idempotente, conserva su registro y revoca todas sus sesiones activas en la misma transacción.
+- Access y refresh tokens incluyen `sid`; ambos quedan vinculados a `AuthSession`, por lo que revocar una sesión invalida ambos tipos de token.
 - Los usuarios se desactivan; no se eliminan físicamente.
 - No hay signup público de empleados.
 - Pagos son registros internos, sin pasarela.

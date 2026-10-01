@@ -79,9 +79,12 @@ AppModule
 - [x] Estrategia de Guards globales: proteger por defecto y declarar explícitamente las rutas públicas.
 - [x] Flujo completo de autorización: Guard para acceder a la ruta y service para validar la operación concreta.
 - [x] Visibilidad por rol: filtrar en PostgreSQL qué usuarios puede consultar cada actor.
+- [x] Parámetros y Pipes: `@Param()` obtiene `:id` y `ParseUUIDPipe` valida antes del controller.
+- [x] Desactivación transaccional: cambiar el estado del usuario y revocar sus sesiones como una unidad.
+- [x] Sesiones vinculadas: `sub` identifica al usuario y `sid` identifica el inicio de sesión de ambos tokens.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
 ## Próximo punto de reanudación
 
-Los Guards globales y `@Public()` ya están funcionando. `POST /users` y `GET /users` integran autenticación, autorización de ruta, reglas de negocio y visibilidad filtrada desde PostgreSQL. El siguiente bloque será la desactivación segura de usuarios y la revocación de sus sesiones.
+Los Guards globales y `@Public()` ya están funcionando. La gestión actual permite crear, consultar y desactivar usuarios con autorización por rol. Access y refresh tokens están vinculados a `AuthSession`. El siguiente bloque será reactivar usuarios sin restaurar sesiones revocadas y, después, editar sus datos.
