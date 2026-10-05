@@ -9,6 +9,7 @@ import { Prisma, Role } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { CreateUserInput } from './schemas/create-user.schema.js';
 import type { UpdateUserInput } from './schemas/update-user.schema.js';
+import type { ResetUserPasswordInput } from './schemas/reset-user-password.schema.js';
 
 @Injectable()
 export class UsersService {
@@ -220,6 +221,72 @@ export class UsersService {
         throw new ConflictException('El nombre de usuario ya está en uso');
       }
 
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new ForbiddenException('El usuario ya no puede ser gestionado');
+      }
+
+      throw error;
+    }
+  }
+
+  async resetPassword(
+    targetUserId: string,
+    input: ResetUserPasswordInput,
+    actorRole: Role,
+  ): Promise<void> {
+    const targetUser = await this.prisma.user.findUnique({
+      where: {
+        id: targetUserId,
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    if (!targetUser) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    this.assertCanManageRole(actorRole, targetUser.role);
+
+    const passwordHash = await argon2.hash(input.password, {
+      type: argon2.argon2id,
+    });
+
+    const managedRoles = this.managedRolesFor(actorRole);
+    const now = new Date();
+
+    try {
+      await this.prisma.$transaction(async (transaction) => {
+        await transaction.user.update({
+          where: {
+            id: targetUserId,
+            role: {
+              in: managedRoles,
+            },
+          },
+          data: {
+            passwordHash,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        await transaction.authSession.updateMany({
+          where: {
+            userId: targetUserId,
+            revokedAt: null,
+          },
+          data: {
+            revokedAt: now,
+          },
+        });
+      });
+    } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'

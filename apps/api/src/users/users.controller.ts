@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -11,16 +13,20 @@ import { Role } from '../generated/prisma/client.js';
 import type { AuthenticatedUser } from '../auth/authenticated-user.type.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
+
 import {
   createUserSchema,
   type CreateUserInput,
 } from './schemas/create-user.schema.js';
 import { UsersService } from './users.service.js';
-
 import {
   updateUserSchema,
   type UpdateUserInput,
 } from './schemas/update-user.schema.js';
+import {
+  resetUserPasswordSchema,
+  type ResetUserPasswordInput,
+} from './schemas/reset-user-password.schema.js';
 
 @Controller('users')
 export class UsersController {
@@ -48,6 +54,26 @@ export class UsersController {
     currentUser: AuthenticatedUser,
   ) {
     return this.usersService.update(targetUserId, input, currentUser.role);
+  }
+
+  @Patch(':id/password')
+  @Roles(Role.OWNER, Role.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async resetPassword(
+    @Param('id', new ParseUUIDPipe({ version: '4' }))
+    targetUserId: string,
+
+    @Body({ schema: resetUserPasswordSchema })
+    input: ResetUserPasswordInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
+  ): Promise<void> {
+    await this.usersService.resetPassword(
+      targetUserId,
+      input,
+      currentUser.role,
+    );
   }
 
   @Post()
