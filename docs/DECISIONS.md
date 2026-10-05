@@ -17,6 +17,10 @@
 - OWNER puede desactivar ADMIN, WAITER y BARISTA; ADMIN solo puede desactivar WAITER y BARISTA. La gestión de PARTNER queda pendiente.
 - Desactivar un usuario es idempotente, conserva su registro y revoca todas sus sesiones activas en la misma transacción.
 - Access y refresh tokens incluyen `sid`; ambos quedan vinculados a `AuthSession`, por lo que revocar una sesión invalida ambos tipos de token.
+- La edición administrativa permite cambiar nombre, username y rol, incluso en usuarios inactivos. Las contraseñas se gestionarán en una operación separada.
+- OWNER puede editar y asignar roles ADMIN, WAITER y BARISTA; ADMIN solo puede editar y asignar WAITER y BARISTA. OWNER y PARTNER quedan fuera de este endpoint del MVP.
+- En esta fase, la recuperación de acceso será administrativa: OWNER puede restablecer contraseñas de ADMIN, WAITER y BARISTA; ADMIN solo de WAITER y BARISTA. El restablecimiento revoca todas las sesiones.
+- La recuperación por enlace de correo queda fuera del MVP actual porque todavía no existen correos verificados ni infraestructura de envío.
 - Los usuarios se desactivan; no se eliminan físicamente.
 - No hay signup público de empleados.
 - Pagos son registros internos, sin pasarela.

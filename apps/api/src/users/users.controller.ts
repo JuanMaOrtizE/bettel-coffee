@@ -17,6 +17,11 @@ import {
 } from './schemas/create-user.schema.js';
 import { UsersService } from './users.service.js';
 
+import {
+  updateUserSchema,
+  type UpdateUserInput,
+} from './schemas/update-user.schema.js';
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -28,6 +33,21 @@ export class UsersController {
     currentUser: AuthenticatedUser,
   ) {
     return this.usersService.findAllVisibleTo(currentUser.role);
+  }
+
+  @Patch(':id')
+  @Roles(Role.OWNER, Role.ADMIN)
+  update(
+    @Param('id', new ParseUUIDPipe({ version: '4' }))
+    targetUserId: string,
+
+    @Body({ schema: updateUserSchema })
+    input: UpdateUserInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
+  ) {
+    return this.usersService.update(targetUserId, input, currentUser.role);
   }
 
   @Post()
