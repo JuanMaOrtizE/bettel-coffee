@@ -83,9 +83,10 @@ AppModule
 - [x] Desactivación transaccional: cambiar el estado del usuario y revocar sus sesiones como una unidad.
 - [x] Sesiones vinculadas: `sub` identifica al usuario y `sid` identifica el inicio de sesión de ambos tokens.
 - [x] Actualización parcial y concurrencia: Zod limita campos y Prisma repite la condición de autorización en el `UPDATE`.
+- [x] Restablecimiento administrativo de contraseñas: el controller responde `204`, Argon2 genera el hash fuera de la transacción y PostgreSQL actualiza la contraseña y revoca las sesiones de forma atómica.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
 ## Próximo punto de reanudación
 
-Los Guards globales y `@Public()` ya están funcionando. La gestión permite crear, consultar, editar, activar y desactivar usuarios con autorización por rol. Access y refresh tokens están vinculados a `AuthSession`. El siguiente bloque será el restablecimiento administrativo de contraseñas con revocación de sesiones.
+Los Guards globales y `@Public()` ya están funcionando. La gestión permite crear, consultar, editar, activar, desactivar y restablecer contraseñas con autorización por rol. Access y refresh tokens están vinculados a `AuthSession`, y el restablecimiento de contraseña revoca todas las sesiones del usuario. El siguiente bloque comenzará la fase de catálogo y mesas según las historias de usuario.

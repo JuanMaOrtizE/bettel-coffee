@@ -1,7 +1,7 @@
 # STATUS.md
 
-Fase actual: **1 — Auth y roles**
-Estado: **En progreso**
+Fase actual: **2 — Catálogo y mesas**
+Estado: **Análisis funcional**
 
 Fase 0 completada:
 - [x] crear monorepo;
@@ -13,17 +13,23 @@ Fase 0 completada:
 - [x] configurar Swagger;
 - [x] implementar `/health`.
 
+Fase 1 completada:
+- [x] definir el modelo `User` y el enum `Role`;
+- [x] crear el OWNER inicial;
+- [x] implementar login, refresh y logout;
+- [x] usar JWT mediante cookies `httpOnly` y sesiones persistidas;
+- [x] bloquear usuarios inactivos y revocar sesiones;
+- [x] proteger rutas mediante Guards y roles;
+- [x] gestionar usuarios y restablecer contraseñas administrativamente.
+
 Objetivo inmediato:
-- definir el modelo `User` y el enum `Role`;
-- crear el OWNER inicial;
-- implementar login, refresh y logout;
-- usar JWT mediante cookies httpOnly;
-- bloquear usuarios inactivos;
-- proteger rutas mediante Guards y roles.
+- confirmar las reglas mínimas de categorías y productos;
+- modelar el catálogo antes de crear sus endpoints;
+- reconstruir las reglas de mesas, porque `HU-M01` a `HU-M07` no aparecen en la fuente entregada.
 
 Reglas confirmadas:
 - no existe el rol `CLIENT` en el MVP;
 - los clientes presenciales no tienen cuentas;
 - los usuarios se desactivan y no se eliminan físicamente.
 
-No implementar todavía catálogo, mesas, pedidos, pagos, inventario o reportes.
+No implementar todavía pedidos, pagos, inventario o reportes.
