@@ -28,6 +28,9 @@
 - Una venta puede tener varios pagos.
 - Conservar precios históricos.
 - Las contraseñas nuevas deben tener entre 10 y 128 caracteres; se permiten espacios y no se exigen reglas de composición por tipo de carácter.
+- OWNER y ADMIN gestionan categorías. Las categorías se desactivan en lugar de eliminarse y la consulta administrativa incluye activas e inactivas.
+- Los nombres de categoría tienen entre 2 y 60 caracteres, normalizan espacios y se consideran duplicados sin distinguir mayúsculas y minúsculas. Los acentos sí distinguen nombres.
+- Desactivar una categoría no modifica el estado individual de sus futuros productos; la carta operativa exigirá que tanto la categoría como el producto estén activos.
 
 ## Pendiente de confirmar cuando corresponda
 - Momento exacto de descuento de inventario. Propuesta: al enviar a barra.

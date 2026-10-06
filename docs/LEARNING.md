@@ -84,9 +84,11 @@ AppModule
 - [x] Sesiones vinculadas: `sub` identifica al usuario y `sid` identifica el inicio de sesión de ambos tokens.
 - [x] Actualización parcial y concurrencia: Zod limita campos y Prisma repite la condición de autorización en el `UPDATE`.
 - [x] Restablecimiento administrativo de contraseñas: el controller responde `204`, Argon2 genera el hash fuera de la transacción y PostgreSQL actualiza la contraseña y revoca las sesiones de forma atómica.
+- [x] Módulo de dominio y descubrimiento: `CatalogModule` registra providers y controllers; crear un archivo decorado no basta para que Nest lo construya.
+- [x] Recurso de categorías por capas: Zod transforma la entrada, el service normaliza el nombre, Prisma persiste y PostgreSQL garantiza la unicidad.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
 ## Próximo punto de reanudación
 
-Los Guards globales y `@Public()` ya están funcionando. La gestión permite crear, consultar, editar, activar, desactivar y restablecer contraseñas con autorización por rol. Access y refresh tokens están vinculados a `AuthSession`, y el restablecimiento de contraseña revoca todas las sesiones del usuario. El siguiente bloque comenzará la fase de catálogo y mesas según las historias de usuario.
+La fase de autenticación y roles está completa. En la fase de catálogo ya se construyó el recurso administrativo de categorías con nombres normalizados, unicidad en PostgreSQL y desactivación idempotente. El siguiente bloque modelará `Product` y su relación con `Category`.

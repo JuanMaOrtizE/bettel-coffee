@@ -23,8 +23,8 @@ Fase 1 completada:
 - [x] gestionar usuarios y restablecer contraseñas administrativamente.
 
 Objetivo inmediato:
-- confirmar las reglas mínimas de categorías y productos;
-- modelar el catálogo antes de crear sus endpoints;
+- [x] confirmar, modelar e implementar la gestión de categorías;
+- [ ] confirmar y modelar productos y su relación con categorías;
 - reconstruir las reglas de mesas, porque `HU-M01` a `HU-M07` no aparecen en la fuente entregada.
 
 Reglas confirmadas:
