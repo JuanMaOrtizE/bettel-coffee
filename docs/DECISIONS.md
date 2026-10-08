@@ -36,6 +36,11 @@
 - Los precios llegan por HTTP como texto, se convierten a `Prisma.Decimal` y se almacenan como `DECIMAL(12,2)`; deben ser mayores que cero y tener máximo dos decimales.
 - `Product.isActive` indica pertenencia administrativa al catálogo y solo lo cambia OWNER/ADMIN. `Product.isAvailable` indica disponibilidad temporal y lo cambia OWNER/ADMIN/BARISTA.
 - En la carta operativa solo aparecen categorías y productos activos. Los productos no disponibles permanecen visibles con `isAvailable: false`; las categorías sin productos activos no aparecen.
+- Las mesas usan un identificador visible `label` de 1 a 50 caracteres. Se normalizan espacios y los duplicados se detectan sin distinguir mayúsculas y minúsculas mediante `normalizedLabel`.
+- Una mesa nueva inicia activa y con estado `AVAILABLE`. Los estados previstos son `AVAILABLE`, `OCCUPIED` y `PENDING_PAYMENT`.
+- OWNER y ADMIN administran mesas. WAITER puede consultar únicamente mesas activas; BARISTA y PARTNER no acceden a esta consulta.
+- Desactivar y activar mesas son operaciones idempotentes. Una mesa solo puede desactivarse mientras está `AVAILABLE`; los cambios de estado operativo se implementarán junto con pedidos y cobros.
+- Las mesas no tendrán capacidad ni orden manual en el MVP inicial; se muestran alfabéticamente por `label`.
 
 ## Pendiente de confirmar cuando corresponda
 - Momento exacto de descuento de inventario. Propuesta: al enviar a barra.

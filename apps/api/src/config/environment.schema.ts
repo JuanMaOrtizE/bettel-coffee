@@ -8,6 +8,10 @@ const environmentSchema = z
 
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
 
+    WEB_ORIGIN: z
+      .string()
+      .url('WEB_ORIGIN debe ser una URL válida'),
+
     DATABASE_URL: z.string().min(1, 'DATABASE_URL es obligatoria'),
 
     JWT_ACCESS_SECRET: z

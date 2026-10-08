@@ -90,9 +90,13 @@ AppModule
 - [x] Dinero sin flotantes: el precio viaja como `string`, se convierte a `Prisma.Decimal` y se guarda como `DECIMAL(12,2)`.
 - [x] Estados separados del producto: `isActive` representa el catálogo administrativo e `isAvailable` la disponibilidad temporal.
 - [x] Filtros relacionales: el catálogo operativo filtra categorías con `some` y filtra por separado los productos incluidos.
+- [x] Visibilidad de mesas por rol: `RolesGuard` decide quién entra a `GET /tables`, `@CurrentUser()` entrega el usuario autenticado y `TablesService` limita los registros que puede ver cada rol.
+- [x] Cambios administrativos de mesas: el controller valida ruta y rol, mientras el service conserva la unicidad del identificador y traduce errores conocidos de Prisma.
+- [x] Concurrencia al desactivar mesas: la condición `status = AVAILABLE` forma parte del `UPDATE`; una consulta posterior solo distingue entre `404` y `409`.
+- [x] CORS con cookies: el navegador valida el origen antes de llegar al controller; Nest autoriza únicamente el frontend configurado y habilita credenciales sin reemplazar la autenticación.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
 ## Próximo punto de reanudación
 
-La fase de autenticación y roles está completa. En la fase de catálogo ya existen la gestión administrativa de categorías y productos, precios decimales, disponibilidad operativa y `GET /catalog` para Mesero y Barra. El siguiente bloque reconstruirá las reglas de mesas ausentes en `HU-M01` a `HU-M07` antes de modelarlas.
+La fase de autenticación y roles está completa. El backend de catálogo y mesas también está terminado: creación, consulta por rol, edición, activación y desactivación segura. El siguiente paso será integrar estas capacidades en el frontend antes de avanzar a pedidos.

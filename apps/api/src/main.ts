@@ -1,11 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module.js';
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
+  app.enableCors({
+    origin: configService.getOrThrow<string>('WEB_ORIGIN'),
+    credentials: true,
+  });
+
   app.use(cookieParser());
   app.useGlobalPipes(new StandardSchemaValidationPipe());
 
