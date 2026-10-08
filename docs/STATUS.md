@@ -24,8 +24,9 @@ Fase 1 completada:
 
 Objetivo inmediato:
 - [x] confirmar, modelar e implementar la gestión de categorías;
-- [ ] confirmar y modelar productos y su relación con categorías;
-- reconstruir las reglas de mesas, porque `HU-M01` a `HU-M07` no aparecen en la fuente entregada.
+- [x] confirmar, modelar e implementar productos y su relación con categorías;
+- [x] implementar la lectura operativa del catálogo para Mesero y Barra;
+- [ ] reconstruir las reglas de mesas, porque `HU-M01` a `HU-M07` no aparecen en la fuente entregada.
 
 Reglas confirmadas:
 - no existe el rol `CLIENT` en el MVP;

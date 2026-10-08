@@ -86,9 +86,13 @@ AppModule
 - [x] Restablecimiento administrativo de contraseñas: el controller responde `204`, Argon2 genera el hash fuera de la transacción y PostgreSQL actualiza la contraseña y revoca las sesiones de forma atómica.
 - [x] Módulo de dominio y descubrimiento: `CatalogModule` registra providers y controllers; crear un archivo decorado no basta para que Nest lo construya.
 - [x] Recurso de categorías por capas: Zod transforma la entrada, el service normaliza el nombre, Prisma persiste y PostgreSQL garantiza la unicidad.
+- [x] Relaciones Prisma: `Product.categoryId` almacena la clave foránea y los `select` anidados construyen lecturas con su categoría.
+- [x] Dinero sin flotantes: el precio viaja como `string`, se convierte a `Prisma.Decimal` y se guarda como `DECIMAL(12,2)`.
+- [x] Estados separados del producto: `isActive` representa el catálogo administrativo e `isAvailable` la disponibilidad temporal.
+- [x] Filtros relacionales: el catálogo operativo filtra categorías con `some` y filtra por separado los productos incluidos.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
 ## Próximo punto de reanudación
 
-La fase de autenticación y roles está completa. En la fase de catálogo ya se construyó el recurso administrativo de categorías con nombres normalizados, unicidad en PostgreSQL y desactivación idempotente. El siguiente bloque modelará `Product` y su relación con `Category`.
+La fase de autenticación y roles está completa. En la fase de catálogo ya existen la gestión administrativa de categorías y productos, precios decimales, disponibilidad operativa y `GET /catalog` para Mesero y Barra. El siguiente bloque reconstruirá las reglas de mesas ausentes en `HU-M01` a `HU-M07` antes de modelarlas.

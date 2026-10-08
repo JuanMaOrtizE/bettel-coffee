@@ -31,6 +31,11 @@
 - OWNER y ADMIN gestionan categorías. Las categorías se desactivan en lugar de eliminarse y la consulta administrativa incluye activas e inactivas.
 - Los nombres de categoría tienen entre 2 y 60 caracteres, normalizan espacios y se consideran duplicados sin distinguir mayúsculas y minúsculas. Los acentos sí distinguen nombres.
 - Desactivar una categoría no modifica el estado individual de sus futuros productos; la carta operativa exigirá que tanto la categoría como el producto estén activos.
+- Cada producto pertenece a una categoría. Puede crearse o editarse dentro de una categoría inactiva, pero la categoría debe existir.
+- Los nombres de producto tienen entre 2 y 100 caracteres y son globalmente únicos sin distinguir mayúsculas y minúsculas; los acentos sí distinguen nombres.
+- Los precios llegan por HTTP como texto, se convierten a `Prisma.Decimal` y se almacenan como `DECIMAL(12,2)`; deben ser mayores que cero y tener máximo dos decimales.
+- `Product.isActive` indica pertenencia administrativa al catálogo y solo lo cambia OWNER/ADMIN. `Product.isAvailable` indica disponibilidad temporal y lo cambia OWNER/ADMIN/BARISTA.
+- En la carta operativa solo aparecen categorías y productos activos. Los productos no disponibles permanecen visibles con `isAvailable: false`; las categorías sin productos activos no aparecen.
 
 ## Pendiente de confirmar cuando corresponda
 - Momento exacto de descuento de inventario. Propuesta: al enviar a barra.
