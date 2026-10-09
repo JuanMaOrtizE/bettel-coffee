@@ -22,7 +22,27 @@ export const authApi = baseApi.injectEndpoints({
 
       providesTags: ["Session"],
     }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(baseApi.util.resetApiState());
+        } catch {
+          // La interfaz conserva la sesión visible y muestra el error.
+        }
+      },
+    }),
   }),
 });
 
-export const { useGetMeQuery, useLoginMutation } = authApi;
+export const {
+  useGetMeQuery,
+  useLoginMutation,
+  useLogoutMutation,
+} = authApi;

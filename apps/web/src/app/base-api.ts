@@ -58,6 +58,6 @@ const baseQueryWithReauth: typeof rawBaseQuery = async (
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Session"],
+  tagTypes: ["Session", "Tables"],
   endpoints: () => ({}),
 });

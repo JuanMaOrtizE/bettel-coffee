@@ -94,6 +94,12 @@ AppModule
 - [x] Cambios administrativos de mesas: el controller valida ruta y rol, mientras el service conserva la unicidad del identificador y traduce errores conocidos de Prisma.
 - [x] Concurrencia al desactivar mesas: la condición `status = AVAILABLE` forma parte del `UPDATE`; una consulta posterior solo distingue entre `404` y `409`.
 - [x] CORS con cookies: el navegador valida el origen antes de llegar al controller; Nest autoriza únicamente el frontend configurado y habilita credenciales sin reemplazar la autenticación.
+- [x] Restauración de sesión en el frontend: `SessionGate` consulta `GET /auth/me`, RTK Query conserva el usuario como estado del servidor y las cookies `httpOnly` siguen siendo la credencial y fuente de verdad.
+- [x] Enrutamiento moderno con React Router Data Mode: `createBrowserRouter` declara el árbol fuera del render, `RouterProvider` lo conecta con React y los layouts anidados comparten el usuario mediante `Outlet context`.
+- [x] Protección de rutas por rol en el frontend: `RoleRoute` decide si renderiza su `Outlet` o redirige a la ruta inicial del usuario; mejora la navegación, pero la autorización de seguridad continúa en los Guards y services del backend.
+- [x] Cierre de sesión en el frontend: la mutation espera el `204` de `POST /auth/logout`, el backend revoca la sesión y limpia cookies, y `resetApiState()` elimina la caché de RTK Query antes de volver al login.
+- [x] Contrato de mesas en el frontend: RTK Query consulta `GET /tables`, Zod valida en ejecución la respuesta HTTP y los tipos se infieren del mismo esquema antes de guardar los registros en caché.
+- [x] Renderizado de mesas por estados: `/app/tables` conserva la protección de `RoleRoute`, `TablesPage` representa carga, error, vacío o datos y `TableCard` traduce el estado del dominio a una presentación accesible.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
