@@ -1,7 +1,21 @@
 import { Coffee } from "lucide-react";
 import { LoginForm } from "./LoginForm";
 
-export function LoginPage() {
+type LoginPageProps = {
+  businessSlug: string;
+};
+
+function businessNameFromSlug(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+export function LoginPage({ businessSlug }: LoginPageProps) {
+  const businessName = businessNameFromSlug(businessSlug);
+
   return (
     <main className="relative min-h-dvh overflow-hidden bg-canvas text-ink">
       <div
@@ -18,10 +32,10 @@ export function LoginPage() {
 
             <div>
               <p className="font-display text-2xl font-bold uppercase tracking-[0.12em]">
-                Bettel
+                Pathmin
               </p>
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-muted">
-                Coffee
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted">
+                Operación diaria
               </p>
             </div>
           </div>
@@ -41,7 +55,7 @@ export function LoginPage() {
           </div>
 
           <p className="text-sm text-muted">
-            Acceso interno para el equipo de Bettel Coffee.
+            Espacio de trabajo: <strong>{businessName}</strong>
           </p>
         </section>
 
@@ -54,17 +68,17 @@ export function LoginPage() {
 
               <div>
                 <p className="font-display text-xl font-bold uppercase tracking-[0.12em]">
-                  Bettel
+                  Pathmin
                 </p>
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-muted">
-                  Coffee
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted">
+                  Operación diaria
                 </p>
               </div>
             </div>
 
             <header className="mb-8">
               <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-brand">
-                Acceso de equipo
+                {businessName}
               </p>
 
               <h1 className="font-display text-5xl font-bold uppercase leading-none tracking-tight">
@@ -76,7 +90,7 @@ export function LoginPage() {
               </p>
             </header>
 
-            <LoginForm />
+            <LoginForm businessSlug={businessSlug} />
           </div>
         </section>
       </div>

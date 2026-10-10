@@ -14,6 +14,8 @@ function getRequiredEnvironmentVariable(name: string): string {
 }
 
 const connectionString = getRequiredEnvironmentVariable('DATABASE_URL');
+const businessName = getRequiredEnvironmentVariable('BUSINESS_NAME');
+const businessSlug = getRequiredEnvironmentVariable('BUSINESS_SLUG');
 const fullName = getRequiredEnvironmentVariable('OWNER_FULL_NAME');
 const username = getRequiredEnvironmentVariable('OWNER_USERNAME');
 const password = getRequiredEnvironmentVariable('OWNER_PASSWORD');
@@ -22,31 +24,49 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const existingUser = await prisma.user.findUnique({
-    where: { username },
-  });
-
-  if (existingUser) {
-    console.log(
-      `El usuario "${username}" ya existe. No se realizaron cambios.`,
-    );
-    return;
-  }
-
   const passwordHash = await argon2.hash(password, {
     type: argon2.argon2id,
   });
 
-  await prisma.user.create({
-    data: {
-      fullName,
-      username,
-      passwordHash,
-      role: Role.OWNER,
-    },
+  await prisma.$transaction(async (transaction) => {
+    const business = await transaction.business.upsert({
+      where: {
+        slug: businessSlug,
+      },
+      update: {
+        name: businessName,
+      },
+      create: {
+        name: businessName,
+        slug: businessSlug,
+      },
+    });
+
+    await transaction.user.upsert({
+      where: {
+        businessId_username: {
+          businessId: business.id,
+          username,
+        },
+      },
+      update: {},
+      create: {
+        fullName,
+        username,
+        passwordHash,
+        role: Role.OWNER,
+        business: {
+          connect: {
+            id: business.id,
+          },
+        },
+      },
+    });
   });
 
-  console.log(`OWNER "${username}" creado correctamente.`);
+  console.log(
+    `Negocio "${businessName}" y OWNER "${username}" preparados correctamente.`,
+  );
 }
 
 try {

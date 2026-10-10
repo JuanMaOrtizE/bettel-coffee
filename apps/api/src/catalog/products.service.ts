@@ -13,8 +13,11 @@ import type { UpdateProductInput } from './schemas/update-product.schema.js';
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
+  findAll(businessId: string) {
     return this.prisma.product.findMany({
+      where: {
+        businessId,
+      },
       select: {
         id: true,
         categoryId: true,
@@ -45,35 +48,40 @@ export class ProductsService {
     });
   }
 
-  activate(productId: string) {
-    return this.setStatus(productId, {
+  activate(productId: string, businessId: string) {
+    return this.setStatus(productId, businessId, {
       isActive: true,
     });
   }
 
-  deactivate(productId: string) {
-    return this.setStatus(productId, {
+  deactivate(productId: string, businessId: string) {
+    return this.setStatus(productId, businessId, {
       isActive: false,
     });
   }
 
-  markAvailable(productId: string) {
-    return this.setStatus(productId, {
+  markAvailable(productId: string, businessId: string) {
+    return this.setStatus(productId, businessId, {
       isAvailable: true,
     });
   }
 
-  markUnavailable(productId: string) {
-    return this.setStatus(productId, {
+  markUnavailable(productId: string, businessId: string) {
+    return this.setStatus(productId, businessId, {
       isAvailable: false,
     });
   }
 
-  async update(productId: string, input: UpdateProductInput) {
+  async update(
+    productId: string,
+    input: UpdateProductInput,
+    businessId: string,
+  ) {
     try {
       return await this.prisma.product.update({
         where: {
           id: productId,
+          businessId,
         },
         data: {
           ...(input.categoryId !== undefined
@@ -128,13 +136,14 @@ export class ProductsService {
     }
   }
 
-  async create(input: CreateProductInput) {
+  async create(input: CreateProductInput, businessId: string) {
     const normalizedName = normalizeCatalogName(input.name);
     const price = new Prisma.Decimal(input.price);
 
     try {
       return await this.prisma.product.create({
         data: {
+          businessId,
           categoryId: input.categoryId,
           name: input.name,
           normalizedName,
@@ -172,6 +181,7 @@ export class ProductsService {
 
   private async setStatus(
     productId: string,
+    businessId: string,
     data: {
       isActive?: boolean;
       isAvailable?: boolean;
@@ -181,6 +191,7 @@ export class ProductsService {
       return await this.prisma.product.update({
         where: {
           id: productId,
+          businessId,
         },
         data,
         select: {

@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import type { AuthenticatedUser } from '../auth/authenticated-user.type.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { Role } from '../generated/prisma/client.js';
 import { ProductsService } from './products.service.js';
@@ -26,8 +28,8 @@ export class ProductsController {
 
   @Get()
   @Roles(Role.OWNER, Role.ADMIN)
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@CurrentUser() currentUser: AuthenticatedUser) {
+    return this.productsService.findAll(currentUser.businessId);
   }
 
   @Patch(':id')
@@ -38,8 +40,15 @@ export class ProductsController {
 
     @Body({ schema: updateProductSchema })
     input: UpdateProductInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.productsService.update(productId, input);
+    return this.productsService.update(
+      productId,
+      input,
+      currentUser.businessId,
+    );
   }
 
   @Patch(':id/deactivate')
@@ -47,8 +56,14 @@ export class ProductsController {
   deactivate(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     productId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.productsService.deactivate(productId);
+    return this.productsService.deactivate(
+      productId,
+      currentUser.businessId,
+    );
   }
 
   @Patch(':id/activate')
@@ -56,8 +71,11 @@ export class ProductsController {
   activate(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     productId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.productsService.activate(productId);
+    return this.productsService.activate(productId, currentUser.businessId);
   }
 
   @Patch(':id/unavailable')
@@ -65,8 +83,14 @@ export class ProductsController {
   markUnavailable(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     productId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.productsService.markUnavailable(productId);
+    return this.productsService.markUnavailable(
+      productId,
+      currentUser.businessId,
+    );
   }
 
   @Patch(':id/available')
@@ -74,8 +98,14 @@ export class ProductsController {
   markAvailable(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     productId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.productsService.markAvailable(productId);
+    return this.productsService.markAvailable(
+      productId,
+      currentUser.businessId,
+    );
   }
 
   @Post()
@@ -83,7 +113,10 @@ export class ProductsController {
   create(
     @Body({ schema: createProductSchema })
     input: CreateProductInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.productsService.create(input);
+    return this.productsService.create(input, currentUser.businessId);
   }
 }

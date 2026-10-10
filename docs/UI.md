@@ -62,9 +62,9 @@ Una skill externa de frontend puede ayudar, pero debe respetar este archivo.
 Rutas iniciales:
 
 ```text
-/login
+/b/:businessSlug/login
 
-/app
+/b/:businessSlug/app
 ├── /tables
 ├── /catalog
 └── /management
@@ -72,6 +72,9 @@ Rutas iniciales:
     ├── /categories
     └── /products
 ```
+
+- `businessSlug` identifica el negocio en la navegación, pero el backend usa
+  el `businessId` autenticado como límite de seguridad.
 
 - OWNER y ADMIN inician en Mesas y acceden a Mesas, Carta y Gestión.
 - WAITER inicia en Mesas y accede a Mesas y Carta.
@@ -90,6 +93,8 @@ Rutas iniciales:
 ## Dirección inicial
 
 - El MVP empieza con modo claro.
+- Pathmin es la identidad de la plataforma; cada `Business`, empezando por
+  Bettel Coffee, conserva su nombre dentro del espacio de trabajo.
 - La identidad debe sentirse propia de una estación de servicio de café: operativa, táctil y precisa, no como una plantilla SaaS genérica.
 - Los colores y la tipografía se definirán mediante tokens semánticos.
 - Usar un único sistema de iconos SVG; no usar emojis como iconos.

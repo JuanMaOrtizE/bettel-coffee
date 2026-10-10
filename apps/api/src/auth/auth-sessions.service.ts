@@ -49,10 +49,18 @@ export class AuthSessionsService {
         user: {
           select: {
             id: true,
+            businessId: true,
             fullName: true,
             username: true,
             role: true,
             isActive: true,
+            business: {
+              select: {
+                isActive: true,
+                name: true,
+                slug: true,
+              },
+            },
           },
         },
       },

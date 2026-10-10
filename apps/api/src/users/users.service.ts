@@ -15,29 +15,47 @@ import type { ResetUserPasswordInput } from './schemas/reset-user-password.schem
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByUsername(username: string) {
-    return this.prisma.user.findUnique({ where: { username } });
+  findByBusinessSlugAndUsername(businessSlug: string, username: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        username,
+        business: {
+          slug: businessSlug,
+          isActive: true,
+        },
+      },
+      include: {
+        business: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
   }
 
-  findById(id: string) {
-    return this.prisma.user.findUnique({ where: { id } });
+  findById(id: string, businessId: string) {
+    return this.prisma.user.findUnique({ where: { id, businessId } });
   }
 
-  findAllVisibleTo(actorRole: Role) {
+  findAllVisibleTo(actorBusinessId: string, actorRole: Role) {
     if (actorRole !== Role.OWNER && actorRole !== Role.ADMIN) {
       throw new ForbiddenException(
         'No tienes permisos para consultar usuarios',
       );
     }
 
-    const where =
-      actorRole === Role.ADMIN
+    const where: Prisma.UserWhereInput = {
+      businessId: actorBusinessId,
+      ...(actorRole === Role.ADMIN
         ? {
             role: {
               in: [Role.WAITER, Role.BARISTA],
             },
           }
-        : undefined;
+        : {}),
+    };
 
     return this.prisma.user.findMany({
       where,
@@ -57,10 +75,15 @@ export class UsersService {
     });
   }
 
-  async activate(targetUserId: string, actorRole: Role) {
+  async activate(
+    targetUserId: string,
+    actorBusinessId: string,
+    actorRole: Role,
+  ) {
     const targetUser = await this.prisma.user.findUnique({
       where: {
         id: targetUserId,
+        businessId: actorBusinessId,
       },
       select: {
         id: true,
@@ -87,6 +110,7 @@ export class UsersService {
     return this.prisma.user.update({
       where: {
         id: targetUserId,
+        businessId: actorBusinessId,
       },
       data: {
         isActive: true,
@@ -105,14 +129,22 @@ export class UsersService {
     });
   }
 
-  async deactivate(targetUserId: string, actorId: string, actorRole: Role) {
+  async deactivate(
+    targetUserId: string,
+    actorBusinessId: string,
+    actorId: string,
+    actorRole: Role,
+  ) {
     if (targetUserId === actorId) {
       throw new ForbiddenException('No puedes desactivar tu propia cuenta');
     }
 
     return this.prisma.$transaction(async (transaction) => {
       const targetUser = await transaction.user.findUnique({
-        where: { id: targetUserId },
+        where: {
+          id: targetUserId,
+          businessId: actorBusinessId,
+        },
         select: {
           id: true,
           fullName: true,
@@ -137,6 +169,7 @@ export class UsersService {
         ? await transaction.user.update({
             where: {
               id: targetUserId,
+              businessId: actorBusinessId,
             },
             data: { isActive: false, deactivatedAt: now },
             select: {
@@ -156,6 +189,9 @@ export class UsersService {
         where: {
           userId: targetUserId,
           revokedAt: null,
+          user: {
+            businessId: actorBusinessId,
+          },
         },
         data: {
           revokedAt: now,
@@ -165,10 +201,16 @@ export class UsersService {
     });
   }
 
-  async update(targetUserId: string, input: UpdateUserInput, actorRole: Role) {
+  async update(
+    targetUserId: string,
+    input: UpdateUserInput,
+    actorBusinessId: string,
+    actorRole: Role,
+  ) {
     const targetUser = await this.prisma.user.findUnique({
       where: {
         id: targetUserId,
+        businessId: actorBusinessId,
       },
       select: {
         role: true,
@@ -191,6 +233,7 @@ export class UsersService {
       return await this.prisma.user.update({
         where: {
           id: targetUserId,
+          businessId: actorBusinessId,
           role: {
             in: managedRoles,
           },
@@ -235,11 +278,13 @@ export class UsersService {
   async resetPassword(
     targetUserId: string,
     input: ResetUserPasswordInput,
+    actorBusinessId: string,
     actorRole: Role,
   ): Promise<void> {
     const targetUser = await this.prisma.user.findUnique({
       where: {
         id: targetUserId,
+        businessId: actorBusinessId,
       },
       select: {
         role: true,
@@ -264,6 +309,7 @@ export class UsersService {
         await transaction.user.update({
           where: {
             id: targetUserId,
+            businessId: actorBusinessId,
             role: {
               in: managedRoles,
             },
@@ -280,6 +326,9 @@ export class UsersService {
           where: {
             userId: targetUserId,
             revokedAt: null,
+            user: {
+              businessId: actorBusinessId,
+            },
           },
           data: {
             revokedAt: now,
@@ -298,7 +347,11 @@ export class UsersService {
     }
   }
 
-  async create(input: CreateUserInput, actorRole: Role) {
+  async create(
+    input: CreateUserInput,
+    actorRole: Role,
+    actorBusinessId: string,
+  ) {
     this.assertCanAssignRole(actorRole, input.role);
 
     const passwordHash = await argon2.hash(input.password, {
@@ -312,6 +365,11 @@ export class UsersService {
           username: input.username,
           passwordHash,
           role: input.role,
+          business: {
+            connect: {
+              id: actorBusinessId,
+            },
+          },
         },
         select: {
           id: true,

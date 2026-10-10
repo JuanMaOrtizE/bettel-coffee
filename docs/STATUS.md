@@ -1,7 +1,7 @@
 # STATUS.md
 
-Fase actual: **2 — Catálogo y mesas**
-Estado: **Backend completado; frontend pendiente**
+Fase actual: **2.5 — Multi-tenancy**
+Estado: **Migración estructural aplicada; administración de plataforma y pruebas cruzadas pendientes**
 
 Fase 0 completada:
 - [x] crear monorepo;
@@ -30,6 +30,14 @@ Objetivo inmediato:
 - [x] modelar mesas y sus estados;
 - [x] implementar creación, consulta por rol y edición de mesas;
 - [x] implementar activación y desactivación segura de mesas.
+
+Multi-tenancy completado hasta ahora:
+- [x] crear `Business` y migrar Bettel Coffee como primer tenant;
+- [x] aislar usuarios, sesiones, catálogo y mesas por `businessId`;
+- [x] conservar el tenant en las rutas del frontend mediante `businessSlug`;
+- [x] separar la identidad de Pathmin de la identidad de cada negocio;
+- [ ] crear la administración de negocios para `PLATFORM_ADMIN`;
+- [ ] automatizar pruebas de acceso cruzado entre tenants.
 
 Reglas confirmadas:
 - no existe el rol `CLIENT` en el MVP;

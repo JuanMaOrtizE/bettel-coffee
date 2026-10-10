@@ -13,7 +13,11 @@ export type AppNavigationItem = {
   allowedRoles: readonly Role[];
 };
 
-const defaultRouteByRole: Record<Role, string> = {
+type NavigationDefinition = Omit<AppNavigationItem, "to"> & {
+  path: string;
+};
+
+const defaultPathByRole: Record<Role, string> = {
   OWNER: "/app/tables",
   ADMIN: "/app/tables",
   WAITER: "/app/tables",
@@ -21,33 +25,42 @@ const defaultRouteByRole: Record<Role, string> = {
   PARTNER: "/app",
 };
 
-export function getDefaultRoute(role: Role) {
-  return defaultRouteByRole[role];
+function getBusinessPath(businessSlug: string, path: string) {
+  return `/b/${encodeURIComponent(businessSlug)}${path}`;
+}
+
+export function getDefaultRoute(role: Role, businessSlug: string) {
+  return getBusinessPath(businessSlug, defaultPathByRole[role]);
 }
 
 const navigationItems = [
   {
     label: "Mesas",
-    to: "/app/tables",
+    path: "/app/tables",
     icon: Grid3X3,
     allowedRoles: ["OWNER", "ADMIN", "WAITER"],
   },
   {
     label: "Carta",
-    to: "/app/catalog",
+    path: "/app/catalog",
     icon: BookOpenText,
     allowedRoles: ["OWNER", "ADMIN", "WAITER", "BARISTA"],
   },
   {
     label: "Gestión",
-    to: "/app/management",
+    path: "/app/management",
     icon: Settings2,
     allowedRoles: ["OWNER", "ADMIN"],
   },
-] satisfies readonly AppNavigationItem[];
+] satisfies readonly NavigationDefinition[];
 
-export function getNavigationItems(role: Role) {
-  return navigationItems.filter((item) =>
-    item.allowedRoles.some((allowedRole) => allowedRole === role),
-  );
+export function getNavigationItems(role: Role, businessSlug: string) {
+  return navigationItems
+    .filter((item) =>
+      item.allowedRoles.some((allowedRole) => allowedRole === role),
+    )
+    .map(({ path, ...item }) => ({
+      ...item,
+      to: getBusinessPath(businessSlug, path),
+    }));
 }

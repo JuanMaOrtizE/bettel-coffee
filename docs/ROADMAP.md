@@ -11,6 +11,12 @@ Login/logout/refresh, OWNER inicial, Guards y autorización.
 ## 2. Catálogo y mesas
 Productos, categorías, mesas y estados.
 
+## 2.5. Multi-tenancy
+Business, cuentas administrativas de plataforma, contexto del tenant y
+migración de los datos existentes de Bettel Coffee. Aislar usuarios, sesiones,
+catálogo y mesas por `businessId`, y verificar que ningún endpoint permita
+acceso entre negocios.
+
 ## 3. Pedidos en borrador
 Order, OrderItem, notas, cantidades y snapshot de precio.
 

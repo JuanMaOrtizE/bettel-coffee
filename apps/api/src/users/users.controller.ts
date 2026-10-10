@@ -38,7 +38,10 @@ export class UsersController {
     @CurrentUser()
     currentUser: AuthenticatedUser,
   ) {
-    return this.usersService.findAllVisibleTo(currentUser.role);
+    return this.usersService.findAllVisibleTo(
+      currentUser.businessId,
+      currentUser.role,
+    );
   }
 
   @Patch(':id')
@@ -53,7 +56,12 @@ export class UsersController {
     @CurrentUser()
     currentUser: AuthenticatedUser,
   ) {
-    return this.usersService.update(targetUserId, input, currentUser.role);
+    return this.usersService.update(
+      targetUserId,
+      input,
+      currentUser.businessId,
+      currentUser.role,
+    );
   }
 
   @Patch(':id/password')
@@ -72,6 +80,7 @@ export class UsersController {
     await this.usersService.resetPassword(
       targetUserId,
       input,
+      currentUser.businessId,
       currentUser.role,
     );
   }
@@ -85,7 +94,11 @@ export class UsersController {
     @CurrentUser()
     currentUser: AuthenticatedUser,
   ) {
-    return this.usersService.create(input, currentUser.role);
+    return this.usersService.create(
+      input,
+      currentUser.role,
+      currentUser.businessId,
+    );
   }
 
   @Patch(':id/deactivate')
@@ -99,6 +112,7 @@ export class UsersController {
   ) {
     return this.usersService.deactivate(
       targetUserId,
+      currentUser.businessId,
       currentUser.id,
       currentUser.role,
     );
@@ -113,6 +127,10 @@ export class UsersController {
     @CurrentUser()
     currentUser: AuthenticatedUser,
   ) {
-    return this.usersService.activate(targetUserId, currentUser.role);
+    return this.usersService.activate(
+      targetUserId,
+      currentUser.businessId,
+      currentUser.role,
+    );
   }
 }

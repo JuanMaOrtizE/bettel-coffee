@@ -1,4 +1,4 @@
-# Aprendizaje técnico — Bettel Coffee
+# Aprendizaje técnico — Pathmin
 
 ## Objetivo
 
@@ -14,7 +14,7 @@ Para cada concepto nuevo de NestJS se seguirá este orden:
 4. posición dentro del ciclo de una petición;
 5. dependencias y módulo que lo construye;
 6. ejemplo mínimo;
-7. implementación en Bettel Coffee;
+7. implementación en Pathmin;
 8. comprobación breve de comprensión antes de avanzar.
 
 Pedir que Codex implemente el código no elimina estas explicaciones.
@@ -100,9 +100,21 @@ AppModule
 - [x] Cierre de sesión en el frontend: la mutation espera el `204` de `POST /auth/logout`, el backend revoca la sesión y limpia cookies, y `resetApiState()` elimina la caché de RTK Query antes de volver al login.
 - [x] Contrato de mesas en el frontend: RTK Query consulta `GET /tables`, Zod valida en ejecución la respuesta HTTP y los tipos se infieren del mismo esquema antes de guardar los registros en caché.
 - [x] Renderizado de mesas por estados: `/app/tables` conserva la protección de `RoleRoute`, `TablesPage` representa carga, error, vacío o datos y `TableCard` traduce el estado del dominio a una presentación accesible.
+- [x] Modelo multi-tenant: `businessId` delimita a qué negocio pertenecen los datos, mientras que el rol determina qué puede hacer el usuario dentro de ese negocio; `PLATFORM_ADMIN` queda separado de los usuarios operativos.
+- [x] Contexto autenticado del tenant: `AuthSessionsService` carga `user.businessId` y el estado del negocio; `AuthService` rechaza negocios suspendidos y el Guard coloca un `AuthenticatedUser` confiable en `request.user`, sin aceptar el tenant desde el body.
+- [x] Aislamiento de usuarios por tenant: listados y operaciones por `id` incluyen `businessId` en las consultas y mutaciones; un recurso de otro negocio se trata como inexistente y las revocaciones de sesiones conservan el mismo límite dentro de la transacción.
+- [x] Seed multi-tenant e idempotente: una transacción prepara el `Business` inicial y su OWNER mediante claves únicas, de modo que repetir el seed no crea duplicados ni deja una de las dos entidades sin la otra.
+- [x] Catálogo y mesas por tenant: controllers obtienen `businessId` desde `@CurrentUser()` y los services lo incluyen en todas las lecturas y mutaciones; nombres y etiquetas son únicos solamente dentro del negocio.
+- [x] Integridad relacional entre tenants: `Product` referencia `Category` mediante `businessId + categoryId`, y PostgreSQL impide que un producto quede asociado con una categoría de otro negocio aunque el código de aplicación se equivoque.
+- [x] Contexto de tenant en la URL: React Router obtiene `businessSlug` desde `/b/:businessSlug`, el formulario lo agrega a las credenciales sin pedirlo al usuario y la sesión devuelve el slug real para evitar que una URL manipulada represente otro negocio.
+- [x] Identidad y presentación del tenant: `businessId` mantiene el aislamiento interno, `businessSlug` identifica el acceso legible y `businessName` presenta el nombre real en la interfaz; cada dato tiene una responsabilidad diferente.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
 ## Próximo punto de reanudación
 
-La fase de autenticación y roles está completa. El backend de catálogo y mesas también está terminado: creación, consulta por rol, edición, activación y desactivación segura. El siguiente paso será integrar estas capacidades en el frontend antes de avanzar a pedidos.
+La estructura multi-tenant de los modelos actuales ya está migrada: usuarios,
+sesiones, catálogo y mesas quedan aislados por negocio, y el frontend conserva
+el tenant en su URL. Antes de avanzar a pedidos faltan dos comprobaciones de la
+fase 2.5: crear el flujo administrativo de plataforma para dar de alta negocios
+y automatizar pruebas que intenten acceder a recursos de otro tenant.

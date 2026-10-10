@@ -59,12 +59,14 @@ export function AppShell() {
   const navigate = useNavigate();
   const [logout, { isError: isLogoutError, isLoading: isLoggingOut }] =
     useLogoutMutation();
-  const navigationItems = getNavigationItems(user.role);
+  const navigationItems = getNavigationItems(user.role, user.businessSlug);
 
   const handleLogout = async () => {
     try {
       await logout().unwrap();
-      navigate("/login", { replace: true });
+      navigate(`/b/${encodeURIComponent(user.businessSlug)}/login`, {
+        replace: true,
+      });
     } catch {
       // El estado de la mutation muestra el mensaje de error.
     }
@@ -88,11 +90,11 @@ export function AppShell() {
 
             <div>
               <p className="font-display text-xl font-bold uppercase leading-none tracking-wide">
-                Bettel Coffee
+                {user.businessName}
               </p>
 
               <p className="mt-1 text-xs uppercase tracking-[0.18em] text-surface/60">
-                Estación de servicio
+                Pathmin · Estación de servicio
               </p>
             </div>
           </div>
@@ -141,9 +143,15 @@ export function AppShell() {
               <Coffee aria-hidden="true" className="size-5" />
             </span>
 
-            <p className="font-display text-xl font-bold uppercase tracking-wide text-ink">
-              Bettel Coffee
-            </p>
+            <div>
+              <p className="font-display text-xl font-bold uppercase leading-none tracking-wide text-ink">
+                {user.businessName}
+              </p>
+
+              <p className="mt-1 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted">
+                Pathmin
+              </p>
+            </div>
           </div>
 
           <div className="flex min-w-0 items-center gap-2 pl-2">

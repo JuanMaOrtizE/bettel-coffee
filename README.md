@@ -1,6 +1,10 @@
-# Bettel Coffee
+# Pathmin
 
-Proyecto fullstack de aprendizaje profesional con React, NestJS, Prisma y PostgreSQL.
+Plataforma web multi-tenant para la operación de negocios de café, desarrollada
+con React, NestJS, Prisma y PostgreSQL.
+
+Bettel Coffee es el primer negocio registrado en Pathmin, no el nombre global
+de la plataforma.
 
 Para trabajar con Codex CLI:
 1. Codex lee `AGENTS.md`.

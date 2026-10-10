@@ -1,7 +1,7 @@
 {
-  "name": "bettel-coffee",
+  "name": "pathmin",
   "version": "1.0.0",
-  "description": "Proyecto fullstack de aprendizaje profesional con React, NestJS, Prisma y PostgreSQL.",
+  "description": "Pathmin, plataforma multi-tenant para la operación de negocios de café.",
   "main": "index.js",
   "directories": {
     "doc": "docs"

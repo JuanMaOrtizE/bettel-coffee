@@ -24,7 +24,10 @@ export class AuthService {
   ) {}
 
   async validateCredentials(credentials: LoginInput) {
-    const user = await this.userService.findByUsername(credentials.username);
+    const user = await this.userService.findByBusinessSlugAndUsername(
+      credentials.businessSlug,
+      credentials.username,
+    );
 
     if (!user || !user.isActive) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -40,6 +43,9 @@ export class AuthService {
 
     return {
       id: user.id,
+      businessId: user.businessId,
+      businessName: user.business.name,
+      businessSlug: user.business.slug,
       fullName: user.fullName,
       username: user.username,
       role: user.role,
@@ -78,13 +84,17 @@ export class AuthService {
       session.userId !== parsedClaims.data.sub ||
       session.revokedAt ||
       session.expiresAt <= now ||
-      !session.user.isActive
+      !session.user.isActive ||
+      !session.user.business.isActive
     ) {
       throw new UnauthorizedException('No autenticado');
     }
 
     return {
       id: session.user.id,
+      businessId: session.user.businessId,
+      businessName: session.user.business.name,
+      businessSlug: session.user.business.slug,
       fullName: session.user.fullName,
       username: session.user.username,
       role: session.user.role,
@@ -151,7 +161,8 @@ export class AuthService {
       session.userId !== claims.sub ||
       session.revokedAt ||
       session.expiresAt <= now ||
-      !session.user.isActive
+      !session.user.isActive ||
+      !session.user.business.isActive
     ) {
       throw new UnauthorizedException('Sesión inválida o vencida');
     }
@@ -213,6 +224,9 @@ export class AuthService {
     return {
       user: {
         id: session.user.id,
+        businessId: session.user.businessId,
+        businessName: session.user.business.name,
+        businessSlug: session.user.business.slug,
         fullName: session.user.fullName,
         username: session.user.username,
         role: session.user.role,

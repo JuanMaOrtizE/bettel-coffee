@@ -24,7 +24,7 @@ export function RoleRoute({
     return (
       <Navigate
         replace
-        to={getDefaultRoute(user.role)}
+        to={getDefaultRoute(user.role, user.businessSlug)}
       />
     );
   }

@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import type { AuthenticatedUser } from '../auth/authenticated-user.type.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { Role } from '../generated/prisma/client.js';
 import {
@@ -25,8 +27,8 @@ export class CategoriesController {
 
   @Get()
   @Roles(Role.OWNER, Role.ADMIN)
-  findAll() {
-    return this.categoriesService.findAll();
+  findAll(@CurrentUser() currentUser: AuthenticatedUser) {
+    return this.categoriesService.findAll(currentUser.businessId);
   }
 
   @Patch(':id')
@@ -37,8 +39,15 @@ export class CategoriesController {
 
     @Body({ schema: updateCategorySchema })
     input: UpdateCategoryInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.categoriesService.update(categoryId, input);
+    return this.categoriesService.update(
+      categoryId,
+      input,
+      currentUser.businessId,
+    );
   }
 
   @Patch(':id/deactivate')
@@ -46,8 +55,14 @@ export class CategoriesController {
   deactivate(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     categoryId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.categoriesService.deactivate(categoryId);
+    return this.categoriesService.deactivate(
+      categoryId,
+      currentUser.businessId,
+    );
   }
 
   @Patch(':id/activate')
@@ -55,8 +70,11 @@ export class CategoriesController {
   activate(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     categoryId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.categoriesService.activate(categoryId);
+    return this.categoriesService.activate(categoryId, currentUser.businessId);
   }
 
   @Post()
@@ -64,7 +82,10 @@ export class CategoriesController {
   create(
     @Body({ schema: createCategorySchema })
     input: CreateCategoryInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.categoriesService.create(input);
+    return this.categoriesService.create(input, currentUser.businessId);
   }
 }

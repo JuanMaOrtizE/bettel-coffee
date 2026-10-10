@@ -17,7 +17,7 @@ import type { UpdateTableInput } from './schemas/update-table.schema.js';
 export class TablesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAllVisibleTo(actorRole: Role) {
+  findAllVisibleTo(businessId: string, actorRole: Role) {
     if (
       actorRole !== Role.OWNER &&
       actorRole !== Role.ADMIN &&
@@ -28,12 +28,14 @@ export class TablesService {
       );
     }
 
-    const where =
-      actorRole === Role.WAITER
+    const where: Prisma.CafeTableWhereInput = {
+      businessId,
+      ...(actorRole === Role.WAITER
         ? {
             isActive: true,
           }
-        : undefined;
+        : {}),
+    };
 
     return this.prisma.cafeTable.findMany({
       where,
@@ -51,13 +53,18 @@ export class TablesService {
     });
   }
 
-  async update(tableId: string, input: UpdateTableInput) {
+  async update(
+    tableId: string,
+    input: UpdateTableInput,
+    businessId: string,
+  ) {
     const normalizedLabel = this.normalizeLabel(input.label);
 
     try {
       return await this.prisma.cafeTable.update({
         where: {
           id: tableId,
+          businessId,
         },
         data: {
           label: input.label,
@@ -93,11 +100,12 @@ export class TablesService {
     }
   }
 
-  async deactivate(tableId: string) {
+  async deactivate(tableId: string, businessId: string) {
     try {
       return await this.prisma.cafeTable.update({
         where: {
           id: tableId,
+          businessId,
           status: TableStatus.AVAILABLE,
         },
         data: {
@@ -120,6 +128,7 @@ export class TablesService {
         const table = await this.prisma.cafeTable.findUnique({
           where: {
             id: tableId,
+            businessId,
           },
           select: {
             id: true,
@@ -139,11 +148,12 @@ export class TablesService {
     }
   }
 
-  async activate(tableId: string) {
+  async activate(tableId: string, businessId: string) {
     try {
       return await this.prisma.cafeTable.update({
         where: {
           id: tableId,
+          businessId,
         },
         data: {
           isActive: true,
@@ -169,7 +179,7 @@ export class TablesService {
     }
   }
 
-  async create(input: CreateTableInput) {
+  async create(input: CreateTableInput, businessId: string) {
     const normalizedLabel = this.normalizeLabel(input.label);
 
     try {
@@ -177,6 +187,11 @@ export class TablesService {
         data: {
           label: input.label,
           normalizedLabel,
+          business: {
+            connect: {
+              id: businessId,
+            },
+          },
         },
         select: {
           id: true,

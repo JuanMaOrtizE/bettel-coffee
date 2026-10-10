@@ -7,6 +7,9 @@ export type Role =
 
 export type AuthenticatedUser = {
   id: string;
+  businessId: string;
+  businessName: string;
+  businessSlug: string;
   fullName: string;
   username: string;
   role: Role;

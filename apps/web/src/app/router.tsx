@@ -6,12 +6,14 @@ import {
   CatalogPlaceholder,
   ManagementPlaceholder,
   RoleHomeRedirect,
+  TenantAccessPage,
 } from "./route-components";
 import { SessionGate } from "../features/auth/SessionGate";
 import { TablesPage } from "../features/tables/TablesPage";
 
 export const router = createBrowserRouter([
   {
+    path: "b/:businessSlug",
     Component: SessionGate,
     children: [
       {
@@ -72,5 +74,9 @@ export const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    Component: TenantAccessPage,
   },
 ]);

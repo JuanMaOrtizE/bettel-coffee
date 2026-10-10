@@ -3,7 +3,11 @@ import { useForm } from "react-hook-form";
 import { useLoginMutation } from "./auth-api";
 import { loginSchema, type LoginInput } from "./login.schema";
 
-export function LoginForm() {
+type LoginFormProps = {
+  businessSlug: string;
+};
+
+export function LoginForm({ businessSlug }: LoginFormProps) {
   const [login, { data, isError, isLoading }] = useLoginMutation();
 
   const {
@@ -22,7 +26,7 @@ export function LoginForm() {
   });
 
   const onSubmit = handleSubmit((credentials) => {
-    void login(credentials);
+    void login({ ...credentials, businessSlug });
   });
 
   return (

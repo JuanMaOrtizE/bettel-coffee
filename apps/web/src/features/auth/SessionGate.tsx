@@ -1,20 +1,26 @@
-import { Outlet } from "react-router";
+import { Navigate, Outlet, useParams } from "react-router";
+import { getDefaultRoute } from "../../app/navigation";
 import { LoginPage } from "./LoginPage";
 import { useGetMeQuery } from "./auth-api";
 
 export function SessionGate() {
+  const { businessSlug } = useParams();
   const { data, error, isLoading } = useGetMeQuery();
+
+  if (!businessSlug) {
+    return <Navigate replace to="/" />;
+  }
 
   if (isLoading) {
     return (
       <main className="grid min-h-dvh place-items-center bg-canvas px-6">
         <div className="text-center">
           <p className="font-display text-2xl font-bold uppercase tracking-wide text-ink">
-            Bettel Coffee
+            Pathmin
           </p>
 
           <p className="mt-2 text-sm text-muted" role="status">
-            Recuperando tu sesión…
+            Abriendo {businessSlug.replaceAll("-", " ")}…
           </p>
         </div>
       </main>
@@ -22,6 +28,15 @@ export function SessionGate() {
   }
 
   if (data) {
+    if (data.user.businessSlug !== businessSlug) {
+      return (
+        <Navigate
+          replace
+          to={getDefaultRoute(data.user.role, data.user.businessSlug)}
+        />
+      );
+    }
+
     return <Outlet context={data.user} />;
   }
 
@@ -43,5 +58,5 @@ export function SessionGate() {
     );
   }
 
-  return <LoginPage />;
+  return <LoginPage businessSlug={businessSlug} />;
 }

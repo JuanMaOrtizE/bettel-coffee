@@ -14,3 +14,7 @@ export const loginSchema = z
   .strict();
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export type LoginCredentials = LoginInput & {
+  businessSlug: string;
+};

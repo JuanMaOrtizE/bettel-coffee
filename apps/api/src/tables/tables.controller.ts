@@ -31,7 +31,10 @@ export class TablesController {
     @CurrentUser()
     currentUser: AuthenticatedUser,
   ) {
-    return this.tablesService.findAllVisibleTo(currentUser.role);
+    return this.tablesService.findAllVisibleTo(
+      currentUser.businessId,
+      currentUser.role,
+    );
   }
 
   @Patch(':id')
@@ -42,8 +45,11 @@ export class TablesController {
 
     @Body({ schema: updateTableSchema })
     input: UpdateTableInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.tablesService.update(tableId, input);
+    return this.tablesService.update(tableId, input, currentUser.businessId);
   }
 
   @Patch(':id/deactivate')
@@ -51,8 +57,11 @@ export class TablesController {
   deactivate(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     tableId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.tablesService.deactivate(tableId);
+    return this.tablesService.deactivate(tableId, currentUser.businessId);
   }
 
   @Patch(':id/activate')
@@ -60,8 +69,11 @@ export class TablesController {
   activate(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     tableId: string,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.tablesService.activate(tableId);
+    return this.tablesService.activate(tableId, currentUser.businessId);
   }
 
   @Post()
@@ -69,7 +81,10 @@ export class TablesController {
   create(
     @Body({ schema: createTableSchema })
     input: CreateTableInput,
+
+    @CurrentUser()
+    currentUser: AuthenticatedUser,
   ) {
-    return this.tablesService.create(input);
+    return this.tablesService.create(input, currentUser.businessId);
   }
 }

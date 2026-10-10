@@ -5,12 +5,14 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class CatalogService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findOperationalCatalog() {
+  findOperationalCatalog(businessId: string) {
     return this.prisma.category.findMany({
       where: {
+        businessId,
         isActive: true,
         products: {
           some: {
+            businessId,
             isActive: true,
           },
         },
@@ -20,6 +22,7 @@ export class CatalogService {
         name: true,
         products: {
           where: {
+            businessId,
             isActive: true,
           },
           select: {

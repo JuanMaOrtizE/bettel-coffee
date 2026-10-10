@@ -13,8 +13,11 @@ import type { UpdateCategoryInput } from './schemas/update-category.schema.js';
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
+  findAll(businessId: string) {
     return this.prisma.category.findMany({
+      where: {
+        businessId,
+      },
       select: {
         id: true,
         name: true,
@@ -28,21 +31,26 @@ export class CategoriesService {
     });
   }
 
-  activate(categoryId: string) {
-    return this.setActiveStatus(categoryId, true);
+  activate(categoryId: string, businessId: string) {
+    return this.setActiveStatus(categoryId, businessId, true);
   }
 
-  deactivate(categoryId: string) {
-    return this.setActiveStatus(categoryId, false);
+  deactivate(categoryId: string, businessId: string) {
+    return this.setActiveStatus(categoryId, businessId, false);
   }
 
-  async update(categoryId: string, input: UpdateCategoryInput) {
+  async update(
+    categoryId: string,
+    input: UpdateCategoryInput,
+    businessId: string,
+  ) {
     const normalizedName = normalizeCatalogName(input.name);
 
     try {
       return await this.prisma.category.update({
         where: {
           id: categoryId,
+          businessId,
         },
         data: {
           name: input.name,
@@ -75,7 +83,7 @@ export class CategoriesService {
     }
   }
 
-  async create(input: CreateCategoryInput) {
+  async create(input: CreateCategoryInput, businessId: string) {
     const normalizedName = normalizeCatalogName(input.name);
 
     try {
@@ -83,6 +91,11 @@ export class CategoriesService {
         data: {
           name: input.name,
           normalizedName,
+          business: {
+            connect: {
+              id: businessId,
+            },
+          },
         },
         select: {
           id: true,
@@ -104,11 +117,16 @@ export class CategoriesService {
     }
   }
 
-  private async setActiveStatus(categoryId: string, isActive: boolean) {
+  private async setActiveStatus(
+    categoryId: string,
+    businessId: string,
+    isActive: boolean,
+  ) {
     try {
       return await this.prisma.category.update({
         where: {
           id: categoryId,
+          businessId,
         },
         data: {
           isActive,

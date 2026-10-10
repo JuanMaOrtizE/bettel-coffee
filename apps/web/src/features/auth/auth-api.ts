@@ -1,10 +1,10 @@
 import { baseApi } from "../../app/base-api";
 import type { AuthResponse } from "./auth.types";
-import type { LoginInput } from "./login.schema";
+import type { LoginCredentials } from "./login.schema";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<AuthResponse, LoginInput>({
+    login: builder.mutation<AuthResponse, LoginCredentials>({
       query: (credentials) => ({
         url: "/auth/login",
         method: "POST",
