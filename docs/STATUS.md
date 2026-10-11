@@ -36,6 +36,8 @@ Multi-tenancy completado hasta ahora:
 - [x] aislar usuarios, sesiones, catálogo y mesas por `businessId`;
 - [x] conservar el tenant en las rutas del frontend mediante `businessSlug`;
 - [x] separar la identidad de Pathmin de la identidad de cada negocio;
+- [x] crear la identidad persistida y global de `PlatformAdmin`;
+- [x] crear sesiones persistidas separadas para administradores de plataforma;
 - [ ] crear la administración de negocios para `PLATFORM_ADMIN`;
 - [ ] automatizar pruebas de acceso cruzado entre tenants.
 

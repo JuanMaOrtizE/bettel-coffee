@@ -108,6 +108,8 @@ AppModule
 - [x] Integridad relacional entre tenants: `Product` referencia `Category` mediante `businessId + categoryId`, y PostgreSQL impide que un producto quede asociado con una categoría de otro negocio aunque el código de aplicación se equivoque.
 - [x] Contexto de tenant en la URL: React Router obtiene `businessSlug` desde `/b/:businessSlug`, el formulario lo agrega a las credenciales sin pedirlo al usuario y la sesión devuelve el slug real para evitar que una URL manipulada represente otro negocio.
 - [x] Identidad y presentación del tenant: `businessId` mantiene el aislamiento interno, `businessSlug` identifica el acceso legible y `businessName` presenta el nombre real en la interfaz; cada dato tiene una responsabilidad diferente.
+- [x] Identidad administrativa de plataforma: `PlatformAdmin` vive en una tabla separada, no tiene `businessId` ni reutiliza los roles operativos; así Pathmin conserva una frontera explícita entre la administración global y los usuarios de cada negocio.
+- [x] Sesiones separadas por tipo de identidad: `PlatformAuthSession` solo referencia a `PlatformAdmin`, mientras `AuthSession` continúa reservado para usuarios de negocio; la base de datos impide mezclar ambas fronteras de autenticación.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 

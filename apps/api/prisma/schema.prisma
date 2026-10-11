@@ -123,3 +123,33 @@ model Business {
 
   @@map("businesses")
 }
+
+model PlatformAdmin {
+  id            String                @id @default(uuid()) @db.Uuid
+  fullName      String                @map("full_name")
+  username      String                @unique
+  passwordHash  String                @map("password_hash")
+  isActive      Boolean               @default(true) @map("is_active")
+  deactivatedAt DateTime?             @map("deactivated_at") @db.Timestamptz(3)
+  createdAt     DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+  sessions      PlatformAuthSession[]
+
+  @@map("platform_admins")
+}
+
+model PlatformAuthSession {
+  id               String    @id @default(uuid()) @db.Uuid
+  platformAdminId  String    @map("platform_admin_id") @db.Uuid
+  refreshTokenHash String    @map("refresh_token_hash")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  platformAdmin PlatformAdmin @relation(fields: [platformAdminId], references: [id], onDelete: Restrict)
+
+  @@index([platformAdminId])
+  @@index([expiresAt])
+  @@map("platform_auth_sessions")
+}
