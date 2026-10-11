@@ -110,6 +110,8 @@ AppModule
 - [x] Identidad y presentación del tenant: `businessId` mantiene el aislamiento interno, `businessSlug` identifica el acceso legible y `businessName` presenta el nombre real en la interfaz; cada dato tiene una responsabilidad diferente.
 - [x] Identidad administrativa de plataforma: `PlatformAdmin` vive en una tabla separada, no tiene `businessId` ni reutiliza los roles operativos; así Pathmin conserva una frontera explícita entre la administración global y los usuarios de cada negocio.
 - [x] Sesiones separadas por tipo de identidad: `PlatformAuthSession` solo referencia a `PlatformAdmin`, mientras `AuthSession` continúa reservado para usuarios de negocio; la base de datos impide mezclar ambas fronteras de autenticación.
+- [x] Provider de sesiones de plataforma: `PlatformAuthSessionsService` encapsula las consultas Prisma de creación, búsqueda, rotación y revocación; `PlatformModule` permite que Nest construya el provider e inyecte `PrismaService`.
+- [x] Provider de identidad de plataforma: `PlatformAdminsService` busca cuentas globales y entrega datos internos como `passwordHash`; no decide si el login es válido ni expone ese hash mediante HTTP.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 

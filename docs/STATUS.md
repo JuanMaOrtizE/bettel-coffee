@@ -38,6 +38,8 @@ Multi-tenancy completado hasta ahora:
 - [x] separar la identidad de Pathmin de la identidad de cada negocio;
 - [x] crear la identidad persistida y global de `PlatformAdmin`;
 - [x] crear sesiones persistidas separadas para administradores de plataforma;
+- [x] encapsular la persistencia de esas sesiones en un provider de Nest;
+- [x] encapsular la consulta de identidades `PlatformAdmin` en un provider;
 - [ ] crear la administración de negocios para `PLATFORM_ADMIN`;
 - [ ] automatizar pruebas de acceso cruzado entre tenants.
 
