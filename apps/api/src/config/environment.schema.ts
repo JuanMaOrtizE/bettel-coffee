@@ -22,6 +22,20 @@ const environmentSchema = z
       .string()
       .min(64, 'JWT_REFRESH_SECRET debe tener al menos 64 caracteres'),
 
+    PLATFORM_JWT_ACCESS_SECRET: z
+      .string()
+      .min(
+        64,
+        'PLATFORM_JWT_ACCESS_SECRET debe tener al menos 64 caracteres',
+      ),
+
+    PLATFORM_JWT_REFRESH_SECRET: z
+      .string()
+      .min(
+        64,
+        'PLATFORM_JWT_REFRESH_SECRET debe tener al menos 64 caracteres',
+      ),
+
     JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive(),
 
     JWT_REFRESH_TTL_SECONDS: z.coerce.number().int().positive(),
@@ -29,10 +43,15 @@ const environmentSchema = z
   .passthrough()
   .refine(
     (environment) =>
-      environment.JWT_ACCESS_SECRET !== environment.JWT_REFRESH_SECRET,
+      new Set([
+        environment.JWT_ACCESS_SECRET,
+        environment.JWT_REFRESH_SECRET,
+        environment.PLATFORM_JWT_ACCESS_SECRET,
+        environment.PLATFORM_JWT_REFRESH_SECRET,
+      ]).size === 4,
     {
-      message: 'Los secretos de access y refresh deben ser diferentes',
-      path: ['JWT_REFRESH_SECRET'],
+      message: 'Los cuatro secretos JWT deben ser diferentes',
+      path: ['PLATFORM_JWT_ACCESS_SECRET'],
     },
   );
 
