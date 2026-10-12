@@ -3,9 +3,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import type { AuthenticatedPlatformAdmin } from './authenticated-platform-admin.type.js';
 import { PlatformAdminsService } from './platform-admins.service.js';
 import { PlatformAuthSessionsService } from './platform-auth-sessions.service.js';
 import {
+  platformAccessTokenClaimsSchema,
   platformRefreshTokenClaimsSchema,
   type PlatformAccessTokenPayload,
   type PlatformRefreshTokenPayload,
@@ -42,6 +44,52 @@ export class PlatformAuthService {
       id: platformAdmin.id,
       fullName: platformAdmin.fullName,
       username: platformAdmin.username,
+    };
+  }
+
+  async validateAccessToken(
+    accessToken: string,
+  ): Promise<AuthenticatedPlatformAdmin> {
+    let decodedToken: unknown;
+
+    try {
+      decodedToken = await this.jwtService.verifyAsync(accessToken, {
+        secret: this.configService.getOrThrow<string>(
+          'PLATFORM_JWT_ACCESS_SECRET',
+        ),
+        algorithms: ['HS256'],
+      });
+    } catch {
+      throw new UnauthorizedException('No autenticado');
+    }
+
+    const parsedClaims =
+      platformAccessTokenClaimsSchema.safeParse(decodedToken);
+
+    if (!parsedClaims.success) {
+      throw new UnauthorizedException('No autenticado');
+    }
+
+    const session = await this.platformAuthSessionsService.findById(
+      parsedClaims.data.sid,
+    );
+
+    const now = new Date();
+
+    if (
+      !session ||
+      session.platformAdminId !== parsedClaims.data.sub ||
+      session.revokedAt ||
+      session.expiresAt <= now ||
+      !session.platformAdmin.isActive
+    ) {
+      throw new UnauthorizedException('No autenticado');
+    }
+
+    return {
+      id: session.platformAdmin.id,
+      fullName: session.platformAdmin.fullName,
+      username: session.platformAdmin.username,
     };
   }
 
