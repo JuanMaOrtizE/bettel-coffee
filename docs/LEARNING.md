@@ -119,6 +119,8 @@ AppModule
 - [x] Login interno de plataforma: `PlatformAuthService` valida la cuenta con Argon2, crea un `sid`, firma access y refresh con secretos exclusivos, guarda solo el hash del refresh y delega la persistencia a `PlatformAuthSessionsService`.
 - [x] Entrada HTTP del login de plataforma: `PlatformAuthController` valida el body con Zod, delega la autenticación al service y coloca JWT en cookies `httpOnly` con nombres y rutas separadas de las sesiones de negocio.
 - [x] Rotación de plataforma: el refresh mantiene `sid`, cambia `jti`, limita los nuevos tokens al tiempo restante de la sesión y usa una actualización condicional del hash para que solo una petición pueda consumir cada refresh token.
+- [x] Logout de plataforma: el service revoca la sesión persistida y el controller elimina las cookies; la operación es idempotente y responde `204` incluso cuando la sesión ya no es utilizable.
+- [x] Ámbitos de autenticación: el metadato `authRealm` distingue rutas públicas, tenant y plataforma; el guard operativo ignora las rutas que le corresponden al futuro guard de plataforma y las rutas sin etiqueta continúan protegidas como tenant por defecto.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
@@ -126,7 +128,8 @@ Las casillas representan conceptos revisados y explicados, no solo código exist
 
 La estructura multi-tenant de los modelos actuales ya está migrada: usuarios,
 sesiones, catálogo y mesas quedan aislados por negocio, y el frontend conserva
-el tenant en su URL. El login y refresh de plataforma ya funcionan con cookies
-propias y rotación persistida; falta completar logout y autenticación de rutas
-globales. Después se podrá construir el flujo administrativo para dar de alta
-negocios y automatizar pruebas que intenten acceder a recursos de otro tenant.
+el tenant en su URL. Login, refresh y logout de plataforma ya funcionan con
+cookies propias y sesiones persistidas; falta autenticar las rutas globales sin
+confundirlas con las rutas de cada negocio. Después se podrá construir el flujo
+administrativo para dar de alta negocios y automatizar pruebas que intenten
+acceder a recursos de otro tenant.

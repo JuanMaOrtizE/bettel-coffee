@@ -94,6 +94,23 @@ export class PlatformAuthController {
     }
   }
 
+  @Public()
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const refreshToken: unknown =
+      request.cookies?.[PLATFORM_REFRESH_TOKEN_COOKIE];
+
+    await this.platformAuthService.logout(
+      typeof refreshToken === 'string' ? refreshToken : undefined,
+    );
+
+    this.clearAuthCookies(response);
+  }
+
   private setAuthCookies(
     response: Response,
     accessToken: string,

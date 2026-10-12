@@ -9,7 +9,10 @@ import { AuthService } from '../auth.service.js';
 import type { AuthenticatedRequest } from '../authenticated-request.type.js';
 
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
+import {
+  AUTH_REALM_KEY,
+  type AuthRealm,
+} from '../decorators/auth-realm.decorator.js';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -19,12 +22,12 @@ export class AccessTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const authRealm = this.reflector.getAllAndOverride<AuthRealm>(
+      AUTH_REALM_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-    if (isPublic) {
+    if (authRealm === 'public' || authRealm === 'platform') {
       return true;
     }
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
