@@ -15,6 +15,7 @@ export const platformAccessTokenClaimsSchema =
 
 export const platformRefreshTokenClaimsSchema =
   platformTokenBaseClaimsSchema.extend({
+    jti: z.uuid(),
     tokenType: z.literal('refresh'),
   });
 

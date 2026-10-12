@@ -21,7 +21,7 @@ Pedir que Codex implemente el código no elimina estas explicaciones.
 
 ## Punto actual
 
-Fase: autenticación y autorización.
+Fase: administración de plataforma y cierre de la base multi-tenant.
 
 Ya existe código funcional para:
 
@@ -32,8 +32,12 @@ Ya existe código funcional para:
 - validación con Zod;
 - un Access Token Guard;
 - `GET /auth/me` y un decorador de usuario actual.
+- identidad y sesiones separadas para administradores de plataforma;
+- validación de credenciales y creación interna del login de plataforma.
 
-Sin embargo, antes de implementar `RolesGuard` se hará una pausa para reconstruir los fundamentos de NestJS que conectan esas piezas.
+El login de plataforma todavía no tiene controller ni endpoints HTTP. Primero se
+están construyendo y comprendiendo sus providers, contratos JWT y límites de
+responsabilidad.
 
 ## Modelo mental que debemos dominar
 
@@ -112,6 +116,9 @@ AppModule
 - [x] Sesiones separadas por tipo de identidad: `PlatformAuthSession` solo referencia a `PlatformAdmin`, mientras `AuthSession` continúa reservado para usuarios de negocio; la base de datos impide mezclar ambas fronteras de autenticación.
 - [x] Provider de sesiones de plataforma: `PlatformAuthSessionsService` encapsula las consultas Prisma de creación, búsqueda, rotación y revocación; `PlatformModule` permite que Nest construya el provider e inyecte `PrismaService`.
 - [x] Provider de identidad de plataforma: `PlatformAdminsService` busca cuentas globales y entrega datos internos como `passwordHash`; no decide si el login es válido ni expone ese hash mediante HTTP.
+- [x] Login interno de plataforma: `PlatformAuthService` valida la cuenta con Argon2, crea un `sid`, firma access y refresh con secretos exclusivos, guarda solo el hash del refresh y delega la persistencia a `PlatformAuthSessionsService`.
+- [x] Entrada HTTP del login de plataforma: `PlatformAuthController` valida el body con Zod, delega la autenticación al service y coloca JWT en cookies `httpOnly` con nombres y rutas separadas de las sesiones de negocio.
+- [x] Rotación de plataforma: el refresh mantiene `sid`, cambia `jti`, limita los nuevos tokens al tiempo restante de la sesión y usa una actualización condicional del hash para que solo una petición pueda consumir cada refresh token.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
@@ -119,6 +126,7 @@ Las casillas representan conceptos revisados y explicados, no solo código exist
 
 La estructura multi-tenant de los modelos actuales ya está migrada: usuarios,
 sesiones, catálogo y mesas quedan aislados por negocio, y el frontend conserva
-el tenant en su URL. Antes de avanzar a pedidos faltan dos comprobaciones de la
-fase 2.5: crear el flujo administrativo de plataforma para dar de alta negocios
-y automatizar pruebas que intenten acceder a recursos de otro tenant.
+el tenant en su URL. El login y refresh de plataforma ya funcionan con cookies
+propias y rotación persistida; falta completar logout y autenticación de rutas
+globales. Después se podrá construir el flujo administrativo para dar de alta
+negocios y automatizar pruebas que intenten acceder a recursos de otro tenant.
