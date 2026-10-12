@@ -121,6 +121,7 @@ AppModule
 - [x] Rotación de plataforma: el refresh mantiene `sid`, cambia `jti`, limita los nuevos tokens al tiempo restante de la sesión y usa una actualización condicional del hash para que solo una petición pueda consumir cada refresh token.
 - [x] Logout de plataforma: el service revoca la sesión persistida y el controller elimina las cookies; la operación es idempotente y responde `204` incluso cuando la sesión ya no es utilizable.
 - [x] Ámbitos de autenticación: el metadato `authRealm` distingue rutas públicas, tenant y plataforma; el guard operativo ignora las rutas que le corresponden al futuro guard de plataforma y las rutas sin etiqueta continúan protegidas como tenant por defecto.
+- [x] Autenticación de rutas globales: `PlatformAccessTokenGuard` actúa solo sobre el realm `platform`, valida cookie, JWT y sesión persistida, y coloca `request.platformAdmin`; `@CurrentPlatformAdmin()` entrega esa identidad al controller.
 
 Las casillas representan conceptos revisados y explicados, no solo código existente.
 
@@ -128,8 +129,7 @@ Las casillas representan conceptos revisados y explicados, no solo código exist
 
 La estructura multi-tenant de los modelos actuales ya está migrada: usuarios,
 sesiones, catálogo y mesas quedan aislados por negocio, y el frontend conserva
-el tenant en su URL. Login, refresh y logout de plataforma ya funcionan con
-cookies propias y sesiones persistidas; falta autenticar las rutas globales sin
-confundirlas con las rutas de cada negocio. Después se podrá construir el flujo
-administrativo para dar de alta negocios y automatizar pruebas que intenten
+el tenant en su URL. La autenticación de plataforma ya cubre login, refresh,
+logout y rutas globales protegidas. El siguiente bloque es el alta transaccional
+de un negocio con su OWNER inicial; después se automatizarán pruebas que intenten
 acceder a recursos de otro tenant.

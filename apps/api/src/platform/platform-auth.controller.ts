@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,7 +11,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
+import { PlatformAuth } from '../auth/decorators/platform-auth.decorator.js';
 import { Public } from '../auth/decorators/public.decorator.js';
+import type { AuthenticatedPlatformAdmin } from './authenticated-platform-admin.type.js';
+import { CurrentPlatformAdmin } from './decorators/current-platform-admin.decorator.js';
 import {
   PLATFORM_ACCESS_TOKEN_COOKIE,
   PLATFORM_REFRESH_TOKEN_COOKIE,
@@ -21,6 +25,7 @@ import {
   type PlatformLoginInput,
 } from './schemas/platform-login.schema.js';
 
+@PlatformAuth()
 @Controller('platform/auth')
 export class PlatformAuthController {
   constructor(
@@ -109,6 +114,14 @@ export class PlatformAuthController {
     );
 
     this.clearAuthCookies(response);
+  }
+
+  @Get('me')
+  me(
+    @CurrentPlatformAdmin()
+    platformAdmin: AuthenticatedPlatformAdmin,
+  ) {
+    return { platformAdmin };
   }
 
   private setAuthCookies(
